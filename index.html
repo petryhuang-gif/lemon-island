@@ -326,6 +326,7 @@ h1,h2,h3{font-family:"Baloo 2","Noto Sans TC","PingFang TC",system-ui,sans-serif
 .dcard.got{background:#fff;color:var(--ink);border-color:var(--lavl);cursor:pointer}
 img.sil{filter:brightness(0) opacity(.18)}
 .witem.wbg .wthumb{width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;border-radius:10px}
+.rwnote{display:block;font-size:13px;line-height:1.35;color:var(--ink2);text-align:left;margin:2px 0 4px}
 </style>
 
 <div id="pagebg" aria-hidden="true"></div>
@@ -1971,8 +1972,8 @@ function renderMap(){
 
 /* ---------- reward shop (real-world rewards set by parent) ---------- */
 var OLD_REWARDS='[{"id":"r1","icon":"🥤","name":"買一杯飲料","price":60},{"id":"r2","icon":"🎮","name":"玩一次偶像公主機台","price":100},{"id":"r3","icon":"🎁","name":"買一個小禮物","price":180}]';
-var DEFAULT_REWARDS=[{id:"r1",icon:"⏰",name:"晚 15 分鐘睡覺",price:50},{id:"r2",icon:"🥤",name:"買一杯飲料",price:60},{id:"r3",icon:"🍽️",name:"決定一天的晚餐吃什麼",price:60},{id:"r4",icon:"📺",name:"多看 20 分鐘卡通",price:90},{id:"r5",icon:"💗",name:"和爸爸或媽媽單獨約會一小時",price:100},{id:"r6",icon:"🧁",name:"和爸媽一起做點心",price:100},{id:"r7",icon:"🎮",name:"玩一次偶像公主機台",price:120},{id:"r8",icon:"🎁",name:"買一個小禮物",price:180}];
-function rewards(){if(!state.rewards||JSON.stringify(state.rewards)===OLD_REWARDS)state.rewards=JSON.parse(JSON.stringify(DEFAULT_REWARDS));return state.rewards;}
+var DEFAULT_REWARDS=[{"id": "r1", "icon": "💆", "name": "指定按摩 5 分鐘", "price": 20, "note": "妳選要按哪裡（肩膀、背、腳…），爸爸或媽媽幫妳按 5 分鐘。"},{"id": "r2", "icon": "🎲", "name": "全家遊戲時間", "price": 30, "note": "全家一起玩 20 分鐘，玩什麼由妳決定，例如桌遊、紙牌、捉迷藏。"},{"id": "r3", "icon": "⏰", "name": "晚 15 分鐘睡覺", "price": 50, "note": "兌換當天，睡覺時間往後延 15 分鐘。"},{"id": "r4", "icon": "🥤", "name": "買一杯飲料", "price": 60, "note": "60 元以內的飲料一杯，妳自己挑。"},{"id": "r5", "icon": "🍽️", "name": "決定一天的晚餐吃什麼", "price": 60, "note": "由妳決定當天晚餐吃什麼。太遠或太貴的，爸媽可以請妳換一個。"},{"id": "r6", "icon": "🎮", "name": "玩一次偶像公主機台", "price": 90, "note": "去玩一次偶像公主機台。"},{"id": "r7", "icon": "📺", "name": "多看 20 分鐘卡通", "price": 90, "note": "兌換當天，可以多看 20 分鐘卡通。"},{"id": "r8", "icon": "✏️", "name": "可愛文具尋寶", "price": 100, "note": "去文具店自己挑一樣喜歡的文具，100 元以內。"},{"id": "r9", "icon": "📸", "name": "拍一次拍貼機", "price": 100, "note": "和媽媽或朋友一起拍一次拍貼機（大約 100 元）。"},{"id": "r10", "icon": "💗", "name": "和爸爸或媽媽的秘密約會", "price": 100, "note": "選爸爸或媽媽其中一人，只陪妳出門約 1 小時。去哪裡妳決定（要在附近、爸媽同意的地方）。"},{"id": "r11", "icon": "🗺️", "name": "週末半日行程企劃師", "price": 150, "note": "爸媽給妳 2–3 個選項，妳挑一個並決定先去哪裡，全家照妳的安排玩半天。"},{"id": "r12", "icon": "🎁", "name": "買一個小禮物", "price": 200, "note": "妳自己挑一個喜歡的小禮物，200 元以內。"},{"id": "r13", "icon": "🎀", "name": "盲盒 1 盒", "price": 300, "note": "妳自己挑一款盲盒，一盒，300 元以內。"},{"id": "r14", "icon": "🌈", "name": "我的夢幻一日遊", "price": 400, "note": "全家出去玩一整天。妳說想去哪裡，爸媽同意後一起排行程（台中附近，門票加交通 2,000 元以內）。"}];
+function rewards(){if(!state.rewards||JSON.stringify(state.rewards)===OLD_REWARDS||!state.rw3){state.rewards=JSON.parse(JSON.stringify(DEFAULT_REWARDS));state.rw3=1;save();}return state.rewards;}
 function redeems(){if(!state.redeems)state.redeems=[];return state.redeems;}
 var pendingRw=null,cancelArm=null;
 function fmtDay(x){var d=new Date(x);return (d.getMonth()+1)+"/"+d.getDate();}
@@ -1981,13 +1982,13 @@ function renderShop(msg){
   var e=state.energy||0,rs=rewards();
   var items=rs.map(function(r){
     var can=e>=r.price,pend=pendingRw===r.id;
-    return '<button class="rwitem'+(pend?' pend':'')+(can?'':' poor')+'" data-act="rw" data-id="'+esc(r.id)+'"><span class="rwic">'+esc(r.icon||"🎁")+'</span><b>'+esc(r.name)+'</b>'+
+    return '<button class="rwitem'+(pend?' pend':'')+(can?'':' poor')+'" data-act="rw" data-id="'+esc(r.id)+'"><span class="rwic">'+esc(r.icon||"🎁")+'</span><b>'+esc(r.name)+'</b>'+(r.note?'<small class="rwnote">'+esc(r.note)+'</small>':'')+
       '<span class="rwprice">⚡ '+r.price+'</span><small>'+(pend?'再點一次就兌換':(can?'可以兌換！':'還差 ⚡'+(r.price-e)))+'</small>'+
       '<span class="rwbar"><i style="width:'+Math.min(100,e/r.price*100)+'%"></i></span></button>';
   }).join("")||'<p class="muted">爸爸媽媽還沒設定獎勵。</p>';
   var tix=redeems().slice().reverse().slice(0,8).map(function(t){return '<div class="ticket'+(t.done||t.cancel?' used':'')+'"><span class="rwic">'+esc(t.icon||"🎁")+'</span><div><b>'+esc(t.name)+'</b><small>'+fmtDay(t.at)+' 兌換 · '+(t.cancel?'已取消，能量退回了':(t.done?'已經拿到了 ✔':'拿給爸爸媽媽看'))+'</small></div></div>';}).join("");
   app.innerHTML='<div class="topbar"><button class="btn small" data-act="home">← 首頁</button><span class="chip">⚡ 魔法能量 '+e+'</span></div>'+
-   '<section class="map"><h2>🎁 魔法獎勵商店</h2><p class="muted" style="margin:0">用魔法能量換真的獎勵！換到的兌換券，拿給爸爸媽媽看就可以領。</p>'+
+   '<section class="map"><h2>🎁 魔法獎勵商店</h2><p class="muted" style="margin:0">用魔法能量換真的獎勵！換到的兌換券拿給爸爸媽媽看，一起約時間兌現。每個獎勵下面有寫清楚可以換到什麼。</p>'+
    '<div class="rwgrid">'+items+'</div>'+
    '<p class="fb'+(msg&&msg.bad?' bad':' good')+'" role="status">'+(msg?esc(msg.t):'')+'</p>'+
    (tix?'<h3 style="margin:8px 0">我的兌換券</h3><div class="tickets">'+tix+'</div>':'')+
@@ -2004,13 +2005,13 @@ function rwClick(id){
 function shopParentHTML(){
   var big='<h3 style="font-size:18px;margin:4px 0 0">🏆 找回五顆守護星的大獎</h3><p class="muted" style="margin:0">五章全部過關才拿得到。會顯示在首頁的星星下面，讓她每天看到目標。留空就不顯示。</p>'+
    '<div class="rwrow"><input id="bigprize" value="'+esc(state.bigPrize||"")+'" placeholder="例如：去遊樂園玩一天" style="flex:1;min-width:12em"><button class="btn small main" data-act="bigsave">儲存大獎</button></div>';
-  var rows=rewards().map(function(r,i){return '<div class="rwrow"><input id="rwi'+i+'" value="'+esc(r.icon||"")+'" maxlength="4" aria-label="圖示" style="width:3.2em"><input id="rwn'+i+'" value="'+esc(r.name)+'" aria-label="獎勵名稱"><input id="rwp'+i+'" type="number" min="1" value="'+r.price+'" aria-label="需要的能量" style="width:6em"><button class="btn small" data-act="rwdel" data-i="'+i+'">刪除</button></div>';}).join("");
+  var rows=rewards().map(function(r,i){return '<div class="rwrow"><input id="rwi'+i+'" value="'+esc(r.icon||"")+'" maxlength="4" aria-label="圖示" style="width:3.2em"><input id="rwn'+i+'" value="'+esc(r.name)+'" aria-label="獎勵名稱"><input id="rwd'+i+'" value="'+esc(r.note||"")+'" aria-label="說明" placeholder="說明（寫清楚可以換到什麼）" style="flex:2;min-width:12em"><input id="rwp'+i+'" type="number" min="1" value="'+r.price+'" aria-label="需要的能量" style="width:6em"><button class="btn small" data-act="rwdel" data-i="'+i+'">刪除</button></div>';}).join("");
   var log=redeems().map(function(t,i){
     var st=t.cancel?'<span class="muted">已取消，退回 ⚡'+t.price+'</span>':'<button class="btn small'+(t.done?'':' lav')+'" data-act="rwdone" data-i="'+i+'">'+(t.done?'已兌現 ✔':'標記已兌現')+'</button>'+(t.done?'':' <button class="btn small" data-act="rwcancel" data-i="'+i+'">'+(cancelArm===i?'確定取消？再按一次':'取消並退回能量')+'</button>');
     return '<tr><td>'+fmtDay(t.at)+'</td><td>'+esc(t.icon||"")+' '+esc(t.name)+'</td><td>⚡'+t.price+'</td><td>'+st+'</td></tr>';}).reverse().join("");
   var adj=(state.adjusts||[]).slice(-5).reverse().map(function(a){return '<li>'+fmtDay(a.at)+'　'+(a.n>0?'+':'')+a.n+'　'+esc(a.why||'')+'</li>';}).join("");
   return '<section class="panel"><h2>獎勵商店設定</h2>'+
-   '<p class="muted" style="margin:0">她目前有 ⚡'+(state.energy||0)+'。每天認真做魔法訓練大約 10–20，故事每過一關 3–5。建議讓最便宜的獎勵大約 4–5 天換得到，最貴的大約 2 週。</p>'+
+   '<p class="muted" style="margin:0">她目前有 ⚡'+(state.energy||0)+'。每天完成任務大約 15–20（訓練約 12–15，每關自己做出來 3–5，看答案過關 0）。</p>'+
    big+'<h3 style="font-size:18px;margin:8px 0 0">平常的獎勵</h3><div class="rwrows">'+rows+'</div><div class="row"><button class="btn small" data-act="rwadd">＋ 新增獎勵</button><button class="btn small main" data-act="rwsave">儲存</button><span id="rwmsg" class="muted"></span></div>'+
    '<h3 style="font-size:18px;margin:8px 0 0">手動調整能量</h3><p class="muted" style="margin:0">表現特別好想多給，或需要扣回時使用。輸入負數就是扣除。</p>'+
    '<div class="rwrow"><input id="adjn" type="number" placeholder="例如 20 或 -10" style="width:9em"><input id="adjw" placeholder="原因（可不填），例如：主動多練一回" style="flex:1;min-width:10em"><button class="btn small main" data-act="adjust">調整</button><span id="adjmsg" class="muted"></span></div>'+
@@ -2018,7 +2019,7 @@ function shopParentHTML(){
    (log?'<h3 style="font-size:18px;margin:6px 0 0">兌換紀錄</h3><div class="tablewrap"><table><thead><tr><th>日期</th><th>獎勵</th><th>能量</th><th>狀態</th></tr></thead><tbody>'+log+'</tbody></table></div>':'<p class="muted" style="margin:0">還沒有兌換紀錄。</p>')+
    '</section>';
 }
-function readRewardRows(){var rs=rewards();rs.forEach(function(r,i){var a=document.getElementById("rwi"+i),b=document.getElementById("rwn"+i),c=document.getElementById("rwp"+i);if(a)r.icon=a.value.trim()||"🎁";if(b)r.name=b.value.trim()||r.name;if(c){var v=parseInt(c.value,10);if(v>0)r.price=v;}});}
+function readRewardRows(){var rs=rewards();rs.forEach(function(r,i){var a=document.getElementById("rwi"+i),b=document.getElementById("rwn"+i),c=document.getElementById("rwp"+i);if(a)r.icon=a.value.trim()||"🎁";if(b)r.name=b.value.trim()||r.name;var d=document.getElementById("rwd"+i);if(d)r.note=d.value.trim();if(c){var v=parseInt(c.value,10);if(v>0)r.price=v;}});}
 
 /* ---------- engine extensions: match, multipick, dialogue lines, exam mode, stage colouring ---------- */
 function playLines(lines){speakSeq(lines.map(function(l){return {text:l[1],pitch:l[0]==="C"?1.35:0.9};}));}
@@ -2143,7 +2144,7 @@ app.addEventListener("click",function(e){
       break;
     case "import":
       var im=document.getElementById("importbox"),m2=document.getElementById("importmsg");
-      try{var s=JSON.parse(im.value.trim());if(!s||s.v!==1||!s.tasks)throw 0;state=s;save();m2.textContent="已還原。";setTimeout(renderParent,600);}
+      try{var s=JSON.parse(im.value.trim());if(!s||s.v!==1||!s.tasks)throw 0;state=s;migrateState();if(state.daily&&state.daily.day===dayIdx()&&!Object.keys(state.daily.done||{}).length)state.daily=null;save();m2.textContent="已還原。";setTimeout(renderParent,600);}
       catch(err){m2.textContent="備份碼格式不對，請確認有完整貼上。";}
       break;
     case "reset":
@@ -2159,7 +2160,8 @@ app.addEventListener("keydown",function(e){
   if(e.key==="Enter"&&e.target.tagName==="INPUT"&&cur&&(cur.t.type==="fields"||cur.t.type==="passage")){e.preventDefault();check();}
 });
 
-(function migrate(){if(state.migr2)return;Object.keys(state.tasks).forEach(function(id){var r=state.tasks[id];if(r&&r.lastHints>=4)r.retry=true;});state.chapEndSeen=state.chapEndSeen||{};CHAPTERS.forEach(function(c,i){if(chapDone(i))state.chapEndSeen[c.id]=1;});state.migr2=1;save();})();
+function migrateState(){if(state.migr2)return;Object.keys(state.tasks).forEach(function(id){var r=state.tasks[id];if(r&&r.lastHints>=4)r.retry=true;});state.chapEndSeen=state.chapEndSeen||{};CHAPTERS.forEach(function(c,i){if(chapDone(i))state.chapEndSeen[c.id]=1;});state.migr2=1;save();}
+migrateState();
 if(/test/.test(location.hash))window.__LI={st:function(){return state},cur:function(){return cur},sp:function(){return spS},READS:READS};
 if(!state.introSeen)renderIntro(0);else renderHome();
 })();
