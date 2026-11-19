@@ -320,6 +320,12 @@ h1,h2,h3{font-family:"Baloo 2","Noto Sans TC","PingFang TC",system-ui,sans-serif
 .mlist .mk{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--lavl);font-weight:800}
 .mlist .mi.ok{opacity:.65}.mlist .mi.ok .mk{background:var(--mint);color:#fff}
 .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#5e3f78;color:#fff;padding:12px 18px;border-radius:16px;font-weight:700;z-index:99;max-width:90vw;text-align:center}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;width:100%}
+.dcard{display:grid;gap:2px;padding:8px;border-radius:12px;background:#efe9f7;color:#9a8cae;text-align:center;border:2px solid transparent;font:inherit}
+.dcard b{font-size:16px}.dcard small{font-size:12px}
+.dcard.got{background:#fff;color:var(--ink);border-color:var(--lavl);cursor:pointer}
+img.sil{filter:brightness(0) opacity(.18)}
+.witem.wbg .wthumb{width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;border-radius:10px}
 </style>
 
 <div id="pagebg" aria-hidden="true"></div>
@@ -1059,7 +1065,7 @@ function complete(){
   else{egain=firstTime?(3+(cur.level===0?2:0)):1;rec.done=true;rec.retry=false;}
   addEnergy(egain);
   state.tasks[t.id]=rec;
-  var md=missionToday();if(md.ids.indexOf(t.id)>=0)md.done[t.id]=true;
+  var md=missionToday();if(md.ids.indexOf(t.id)>=0)md.done[t.id]=true;markMissionDay();
   state.log.push({id:t.id,at:rec.lastAt,tries:cur.attempts,hints:Math.min(cur.level,4)});
   if(state.log.length>500)state.log=state.log.slice(-500);
   save();
@@ -1296,7 +1302,7 @@ function finishSpell(){
   s.sessions.push({at:nowISO(),letters:L,words:W,names:N,dlg:D,pic:P,rec:RC,read:RD,def:DF,pos:PS});
   var gain=state.lastTrainDay===dayIdx()?2:(L[0]+W[0]+N[0]+(D[0]+P[0]+RD[0]+DF[0])*2+Math.floor(RC[0]/5)+PS[0]+3);state.energy=(state.energy||0)+gain;state.lastTrainDay=dayIdx();
   if(s.sessions.length>200)s.sessions=s.sessions.slice(-200);
-  save();
+  save();markMissionDay();
   var total=L[0]+W[0]+N[0]+D[0]+P[0]+RC[0]+RD[0]+DF[0]+PS[0],all=L[1]+W[1]+N[1]+D[1]+P[1]+RC[1]+RD[1]+DF[1]+PS[1];
   var miss=r.filter(function(x){return !x.ok&&x.k==="word"}).map(function(x){return x.a});
   app.innerHTML='<div class="topbar"><button class="btn small" data-act="home">← 首頁</button></div>'+
@@ -1632,13 +1638,16 @@ function voiceParentHTML(){
   '</section>';
 }
 var WARD={
- outfit:{label:"服裝",items:[{id:"pink",name:"粉紅愛心偶像裝",img:"img/lemon.webp",price:0},{id:"lav",name:"薰衣草魔法少女",img:"img/o_lav.webp",price:30},{id:"sky",name:"天空藍星星翅膀",img:"img/o_sky.webp",price:50},{id:"starry",name:"星空月亮洋裝",img:"img/o_starry.webp",price:80},{id:"gold",name:"金色閃亮舞台裝",img:"img/o_gold.webp",price:120}]},
+ outfit:{label:"服裝",items:[{id:"pink",name:"粉紅愛心偶像裝",img:"img/lemon.webp",price:0},{id:"lav",name:"薰衣草魔法少女",img:"img/o_lav.webp",price:30},{id:"sky",name:"天空藍星星翅膀",img:"img/o_sky.webp",price:50},{id:"starry",name:"星空月亮洋裝",img:"img/o_starry.webp",price:80},{id:"gold",name:"金色閃亮舞台裝",img:"img/o_gold.webp",price:120},{id:"book",name:"魔法書學者",img:"img/o_book.webp"},{id:"rainbow",name:"彩虹字母精靈",img:"img/o_rainbow.webp"},{id:"queen",name:"單字女王",img:"img/o_queen.webp"}]},
+ bg:{label:"首頁背景",items:[{id:"home",name:"魔法冒險島",img:"img/home.jpg"},{id:"sweets",name:"雲朵甜點花園",img:"img/bg_sweets.jpg"},{id:"park",name:"星空遊樂園",img:"img/bg_park.jpg"},{id:"sea",name:"海底水晶宮",img:"img/bg_sea.jpg"}]}
 };
 function wd(){var w=state.ward;
   if(!w||!w.outfit){var bgk=(w&&w.bg)||"none",own=["outfit:pink","bg:none"];if(w&&w.owned)w.owned.forEach(function(k){if(k.indexOf("bg:")===0&&own.indexOf(k)<0)own.push(k);});
     var refund=0;if(w&&w.owned)w.owned.forEach(function(k){var p=k.split(":");if((p[0]==="hair"||p[0]==="dress"||p[0]==="extra")){var pr={star:8,flower:12,cat:20,crown:40,lav:10,mint:10,sky:10,gold:45,wand:15,wings:30}[p[1]];if(pr)refund+=pr;}});
     if(refund)state.energy=(state.energy||0)+refund;
     state.ward=w={outfit:"pink",bg:own.indexOf("bg:"+bgk)>=0?bgk:"none",owned:own};save();}
+  if(!w.bg||w.bg==="none"){w.bg="home";}
+  if(w.owned.indexOf("bg:home")<0)w.owned.push("bg:home");
   return w;}
 function lemonImg(){return wItem("outfit",wd().outfit).img;}
 function wItem(cat,id){return WARD[cat].items.filter(function(x){return x.id===id})[0]||WARD[cat].items[0];}
@@ -1650,30 +1659,37 @@ function lemonFigure(cap){return '<figure><img class="spk wimg" src="'+lemonImg(
 var pendingBuy=null,wardTab="outfit";
 function trainDays(){var ss=(state.spell&&state.spell.sessions)||[],d={};ss.forEach(function(x){var t=new Date(x.at);d[t.getFullYear()+"-"+t.getMonth()+"-"+t.getDate()]=1;});return Object.keys(d).length;}
 function masteredWords(){var w=(state.spell&&state.spell.words)||{};return Object.keys(w).filter(function(k){return w[k].box>=4}).length;}
-var UNLOCK={pink:null,lav:{t:"chap",c:0,need:"完成第一章"},sky:{t:"chap",c:1,need:"完成第二章"},starry:{t:"days",n:10,need:"魔法訓練累積 10 天"},gold:{t:"words",n:50,need:"學會 50 個單字"}};
+function dexCount(){var r=(state.spell&&state.spell.rec)||{};return Object.keys(r).filter(function(k){return r[k].ok>=1}).length;}
+function mdaysCount(){return (state.mdays||[]).length;}
+function markMissionDay(){if(!(trainedToday()||state.skipTraining))return;if(missionLeft().length)return;var d=dayIdx();state.mdays=state.mdays||[];if(state.mdays.indexOf(d)<0){state.mdays.push(d);save();}}
+var UNLOCK={pink:null,lav:{t:"chap",c:0,need:"完成第一章"},sky:{t:"chap",c:1,need:"完成第二章"},starry:{t:"days",n:10,need:"魔法訓練累積 10 天"},gold:{t:"words",n:50,need:"拼熟 50 個單字"},
+ book:{t:"dex",n:100,need:"單字圖鑑收集 100 個"},rainbow:{t:"dex",n:200,need:"單字圖鑑收集 200 個"},queen:{t:"dex",n:0,need:"單字圖鑑全部收集"},
+ home:null,sweets:{t:"mdays",n:7,need:"完成每日任務 7 天"},park:{t:"mdays",n:14,need:"完成每日任務 14 天"},sea:{t:"mdays",n:21,need:"完成每日任務 21 天"}};
 function unlockInfo(id){var u=UNLOCK[id];if(!u)return {ok:true,txt:""};
+  if(u.t==="dex"||u.t==="mdays"){var need=u.n||VOCAB.length,hv=u.t==="dex"?dexCount():mdaysCount();return {ok:hv>=need,txt:u.need+"（"+Math.min(hv,need)+" / "+need+"）",p:Math.min(1,hv/need)};}
   if(u.t==="chap"){var ch=CHAPTERS[u.c],n=ch.tasks.filter(function(t){return state.tasks[t.id]&&state.tasks[t.id].done}).length;return {ok:chapDone(u.c),txt:u.need+"（"+n+" / "+ch.tasks.length+" 關）",p:n/ch.tasks.length};}
   var have=u.t==="days"?trainDays():masteredWords();return {ok:have>=u.n,txt:u.need+"（"+Math.min(have,u.n)+" / "+u.n+"）",p:Math.min(1,have/u.n)};}
-function syncUnlocks(){var w=wd(),got=[];WARD.outfit.items.forEach(function(it){var k="outfit:"+it.id;if(w.owned.indexOf(k)<0&&unlockInfo(it.id).ok){w.owned.push(k);got.push(it.name);}});if(got.length)save();return got;}
+function syncUnlocks(){var w=wd(),got=[];["outfit","bg"].forEach(function(cat){WARD[cat].items.forEach(function(it){var k=cat+":"+it.id;if(w.owned.indexOf(k)<0&&unlockInfo(it.id).ok){w.owned.push(k);got.push(it.name);}});});if(got.length)save();return got;}
 function renderWardrobe(msg){
   setBg("stage");
   var got=syncUnlocks();if(got.length&&!msg)msg={t:"解鎖新衣服：「"+got.join("」「")+"」！"};
-  var w=wd(),cat=WARD.outfit;
+  var w=wd(),ck=wardTab==="bg"?"bg":"outfit",cat=WARD[ck];
   var items=cat.items.map(function(it){
-    var key="outfit:"+it.id,owned=w.owned.indexOf(key)>=0,on=w.outfit===it.id,u=unlockInfo(it.id);
+    var key=ck+":"+it.id,owned=w.owned.indexOf(key)>=0,on=w[ck]===it.id,u=unlockInfo(it.id);
     var tag=on?'<small class="tag on">穿戴中</small>':(owned?'<small class="tag">點一下換上</small>':'<small class="tag lockt">🔒 '+esc(u.txt)+'</small><span class="rwbar"><i style="width:'+Math.round((u.p||0)*100)+'%"></i></span>');
-    return '<button class="witem'+(on?' on':'')+(owned?'':' wlocked')+'" data-act="witem" data-k="'+key+'"><img class="wthumb" src="'+it.img+'" alt=""><b>'+esc(it.name)+'</b>'+tag+'</button>';
+    return '<button class="witem'+(on?' on':'')+(owned?'':' wlocked')+(ck==="bg"?' wbg':'')+'" data-act="witem" data-k="'+key+'"><img class="wthumb" src="'+it.img+'" alt="" data-fb="'+(ck==="bg"?'img/home.jpg':'img/lemon.webp')+'"><b>'+esc(it.name)+'</b>'+tag+'</button>';
   }).join("");
-  app.innerHTML='<div class="topbar"><button class="btn small" data-act="home">← 首頁</button><span class="chip">👗 已解鎖 '+w.owned.filter(function(k){return k.indexOf("outfit:")===0}).length+' / '+cat.items.length+'</span></div>'+
+  app.innerHTML='<div class="topbar"><button class="btn small" data-act="home">← 首頁</button><span class="chip">已解鎖 '+w.owned.filter(function(k){return k.indexOf(ck+":")===0}).length+' / '+cat.items.length+'</span></div>'+
    '<section class="map ward"><div class="wprev">'+lemonFigure("檸檬")+'</div><div class="wshop" style="min-width:0"><h2>魔法衣櫥</h2>'+
-   '<p class="muted" style="margin:0">完成冒險、每天練習、學會更多單字，就能解鎖新衣服！</p>'+
+   '<div class="row"><button class="btn small'+(ck==="outfit"?' main':'')+'" data-act="wtab" data-k="outfit">👗 衣服</button><button class="btn small'+(ck==="bg"?' main':'')+'" data-act="wtab" data-k="bg">🏞️ 首頁背景</button><button class="btn small lav" data-act="dex">📖 單字圖鑑</button></div>'+
+   '<p class="muted" style="margin:0">'+(ck==="bg"?'每天把任務全部完成，累積天數就能換新的首頁背景！':'完成冒險、每天練習、收集單字圖鑑，就能解鎖新衣服！')+'</p>'+
    '<div class="witems">'+items+'</div>'+
    '<p class="fb'+(msg&&msg.bad?' bad':' good')+'" role="status">'+(msg?esc(msg.t):'')+'</p></div></section>';
   if(got.length&&hasTTS)speak("Wow! You look beautiful!");
 }
 function wardClick(key){
-  var w=wd(),id=key.split(":")[1],it=wItem("outfit",id);
-  if(w.owned.indexOf(key)>=0){w.outfit=id;save();renderWardrobe({t:"換上了「"+it.name+"」！"});return;}
+  var w=wd(),ck=key.split(":")[0],id=key.split(":")[1],it=wItem(ck,id);
+  if(w.owned.indexOf(key)>=0){w[ck]=id;save();renderWardrobe({t:(ck==="bg"?"首頁背景換成「":"換上了「")+it.name+"」！"});return;}
   renderWardrobe({t:"還沒解鎖。"+unlockInfo(id).txt+"，就能穿上「"+it.name+"」！",bad:true});
 }
 
@@ -1761,7 +1777,20 @@ var TRAILDECO={ch1:["🌳","🍄","🌲","🌸","🦋","🌼","🐿️","🌳"],
 
 /* ---------- illustrated screens ---------- */
 var CHBG={ch1:"forest",ch2:"town",ch3:"library",ch4:"stage",ch5:"castle"};
-function setBg(n){var el=document.getElementById("pagebg");if(!el)return;if(n){el.style.backgroundImage="url(img/"+n+".jpg)";el.className="on";}else{el.className="";}}
+function setBg(n){var el=document.getElementById("pagebg");if(!el)return;if(n){var u="img/"+n+".jpg";if(n==="home"){var b=wItem("bg",wd().bg);if(b&&b.img)u=b.img;}el.style.backgroundImage="url("+u+"), url(img/home.jpg)";el.className="on";}else{el.className="";}}
+document.addEventListener("error",function(e){var t=e.target;if(t&&t.tagName==="IMG"){var fb=t.getAttribute("data-fb")||(/\/o_/.test(t.src)?"img/lemon.webp":null);if(fb&&t.src.indexOf(fb)<0){t.src=fb;t.classList.add("sil");}}},true);
+function renderDex(){
+  setBg("library");var s=sp3(),n=dexCount(),tot=VOCAB.length;
+  var next=[[100,"魔法書學者"],[200,"彩虹字母精靈"],[tot,"單字女王"]].filter(function(x){return n<x[0]})[0];
+  var cards=VOCAB.map(function(v){var r=s.rec[v.w],got=r&&r.ok>=1;return got?'<button class="dcard got" data-act="dexsay" data-w="'+esc(v.w)+'"><b>'+esc(v.w)+'</b><small>'+esc(v.zh)+'</small></button>':'<div class="dcard"><b>？？？</b><small>'+(r?'再答對一次就收集':'還沒遇到')+'</small></div>';}).join("");
+  app.innerHTML='<div class="topbar"><button class="btn small" data-act="wardrobe">← 魔法衣櫥</button><button class="btn small" data-act="home">首頁</button></div>'+
+   '<section class="map"><h2>📖 魔法單字圖鑑</h2><p style="margin:0;font-size:20px;font-weight:800">已收集 '+n+' / '+tot+' 個 Movers 單字</p>'+
+   '<span class="rwbar" style="display:block;max-width:520px"><i style="width:'+Math.round(n/tot*100)+'%"></i></span>'+
+   (next?'<p class="chip">再收集 '+(next[0]-n)+' 個，就能穿上「'+next[1]+'」！</p>':'<p class="chip">全部收集完成！你是單字女王 👑</p>')+
+   '<p class="muted" style="margin:0">每天魔法訓練的「認單字」答對，就會收集進圖鑑。點已收集的字可以聽發音。</p>'+
+   '<div class="dgrid">'+cards+'</div></section>';
+  window.scrollTo(0,0);
+}
 var STARCOL=[{c:"#5fd38d",n:"綠色"},{c:"#ff8cc6",n:"粉紅色"},{c:"#b08cff",n:"紫色"},{c:"#6cc2ff",n:"藍色"},{c:"#ffcf3f",n:"金色"}];
 function starImg(lit,cls,col){var id="G"+(++_uid);col=col||"#ffcf3f";
   return '<svg class="'+(cls||"staricon")+(lit?'':' off')+'" viewBox="0 0 100 100" role="img" aria-label="守護星"><defs><radialGradient id="'+id+'" cx=".38" cy=".32" r=".75"><stop offset="0" stop-color="#ffffff"/><stop offset=".3" stop-color="'+col+'" stop-opacity=".75"/><stop offset="1" stop-color="'+col+'"/></radialGradient></defs>'+
@@ -1871,7 +1900,7 @@ function todayHTML(){
   else{msg="今天的任務全部完成了！雲雲老師要休息了，明天見 👋";btn='<button class="btn main big" data-act="backup">📋 請爸媽備份紀錄</button>';}
   return '<div class="panel today"><img class="tpic" src="img/teacher.webp" alt="雲雲老師"><div class="tbody"><span class="who">雲雲老師</span><p>'+esc(msg)+'</p>'+
    '<ol class="mlist">'+items+'</ol>'+
-   '<div class="row">'+btn+'<button class="btn lav" data-act="shop">🎁 獎勵商店</button><button class="btn lav" data-act="wardrobe">👗 魔法衣櫥</button><button class="btn" data-act="intro">📖 看故事</button></div></div></div>';
+   '<div class="row">'+btn+'<button class="btn lav" data-act="shop">🎁 獎勵商店</button><button class="btn lav" data-act="wardrobe">👗 魔法衣櫥</button><button class="btn lav" data-act="dex">📖 單字圖鑑 '+dexCount()+'</button><button class="btn" data-act="intro">看故事</button></div></div></div>';
 }
 var CHFOCUS=["聽讀寫說入門","讀寫","聽力","口說","模擬考"];
 function islandHTML(){
@@ -2044,6 +2073,8 @@ app.addEventListener("click",function(e){
   if(act==="rwdone"){var t=redeems()[+el.getAttribute("data-i")];if(t){t.done=!t.done;save();renderParent();}return;}
   if(act==="wardrobe"){stopSpeak();cur=null;spS=null;pendingBuy=null;renderWardrobe();return;}
   if(act==="wtab"){wardTab=el.getAttribute("data-k");pendingBuy=null;renderWardrobe();return;}
+  if(act==="dex"){stopSpeak();cur=null;spS=null;renderDex();return;}
+  if(act==="dexsay"){speak(el.getAttribute("data-w"));return;}
   if(act==="witem"){wardClick(el.getAttribute("data-k"));return;}
   if(act==="gochap"){stopSpeak();cur=null;var gc=+el.getAttribute("data-c");if(trainedToday()||state.skipTraining){openChap(gc);}else renderTrainIntro();return;}
   if(act==="go"&&(trainedToday()||state.skipTraining)){stopSpeak();cur=null;var nm=nextMission();if(nm)openTaskById(nm);else renderHome();return;}
