@@ -1056,14 +1056,14 @@ function complete(){
   var t=cur.t;
   var rec=state.tasks[t.id]||{plays:0};
   var revealed=cur.level>=4&&t.type!=="speak",isSpeak=t.type==="speak";
-  var firstTime=!rec.done&&!revealed;
+  var firstTime=!rec.done&&!revealed,wasRetry=!!rec.retry;
   rec.plays=(rec.plays||0)+1;rec.lastAt=nowISO();
   rec.lastTries=cur.attempts;rec.lastHints=Math.min(cur.level,4);
   if(!rec.firstAt){rec.firstTries=cur.attempts;rec.firstHints=Math.min(cur.level,4);rec.firstAt=rec.lastAt;}
   var egain=0;
   if(isSpeak){rec.done=true;}
   else if(revealed){rec.retry=true;}
-  else{egain=firstTime?(3+(cur.level===0?2:0)):1;rec.done=true;rec.retry=false;}
+  else{egain=(firstTime||wasRetry)?(3+(cur.level===0?2:0)):1;rec.done=true;rec.retry=false;}
   addEnergy(egain);
   state.tasks[t.id]=rec;
   var md=missionToday();if(md.ids.indexOf(t.id)>=0)md.done[t.id]=true;markMissionDay();
@@ -1076,7 +1076,7 @@ function complete(){
   var nextBtn=chapEnd?'<button class="btn main" data-act="end">'+CHAPTERS[curChap].endBtn+'</button>':(nm?'<button class="btn main" data-act="mgo">下一個任務 →</button>':'<button class="btn main" data-act="home">今天的任務完成了 🎉</button>');
   var a=document.getElementById("actions");
   if(a)a.innerHTML='<div class="win" style="width:100%"><img class="winimg" src="'+(revealed?'img/lemon_think.webp':'img/lemon_jump.webp')+'" alt="檸檬">'+
-    '<div style="font-weight:800;font-size:20px">'+(revealed?"這關明天再挑戰！":(isSpeak?"說得好！":(firstTime?"過關了！":"再次過關！")))+'</div>'+
+    '<div style="font-weight:800;font-size:20px">'+(revealed?"這關明天再挑戰！":(isSpeak?"說得好！":(wasRetry?"挑戰成功！這次自己做出來了！":(firstTime?"過關了！":"再次過關！"))))+'</div>'+
     (egain?'<div class="chip" style="font-size:16px">⚡ +'+egain+' 魔法能量</div>':'')+
     (revealed?'<div class="muted">看了答案不算過關，也沒有能量。明天會換一組題目，自己做出來就能拿到能量！</div>':(independent?'<div class="chip">沒用提示就答對，好厲害！</div>':(isSpeak?'<div class="muted">口說練習完成。晚上可以跟爸爸媽媽再說一次給他們聽！</div>':'<div class="muted">用了提示也沒關係，下次試試看自己完成。</div>')))+
     '<div class="row" style="justify-content:center">'+nextBtn+'<button class="btn" data-act="map">回地圖</button></div></div>';
