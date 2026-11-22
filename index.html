@@ -1003,8 +1003,10 @@ function wrong(){
   var fb=document.getElementById("fb");if(fb){fb.innerHTML='<span class="react"><img src="img/lemon_cheer.webp" alt=""><span>'+esc(fb.textContent)+'</span></span>';}
 }
 
+function hasZh(v){return /[^\x00-\x7f\u2018\u2019]/.test(v||"");}
+function zhWarn(){var q=document.getElementById("qbody");if(!q)return false;var bad=false;q.querySelectorAll("input").forEach(function(el){if(hasZh(el.value))bad=true;});if(bad)setFB("好像打到注音了！請把鍵盤切換成英文（按鍵盤左下角的地球🌐），再打一次。","bad");return bad;}
 function check(){
-  var t=cur.t;cur.attempts++;
+  var t=cur.t;if(zhWarn())return;cur.attempts++;
   if(t.type==="match"){
     if(Object.keys(cur.asg).length<t.names.length){cur.attempts--;setFB("每個名字都要放到一個人或一張圖上喔！","bad");return;}
     var bm={},okm=true;t.names.forEach(function(n){if(cur.asg[n]!==t.answer[n]){bm[n]=1;okm=false;}});cur.mbad=okm?null:bm;rerenderBody();
@@ -1273,6 +1275,7 @@ function submitSpell(){
   if(it.k==="dialog"||it.k==="pic"||it.k==="read"||it.k==="def"){submitBig();return;}
   if(it.k==="rec"||it.k==="pos")return;
   var inp=document.getElementById("spin");
+  if(inp&&hasZh(inp.value)){inp.value="";var w=document.querySelector(".spellcard .zhw");if(!w){w=document.createElement("p");w.className="fb bad zhw";var f=document.querySelector(".spellform");if(f)f.after(w);}w.textContent="好像打到注音了！請把鍵盤切換成英文（按鍵盤左下角的地球🌐），再打一次。";return;}
   var v=norm(inp&&inp.value).replace(/\s+/g,"");
   if(!v){return;}
   var ok=v===it.a.toLowerCase();
@@ -1592,6 +1595,7 @@ function submitBig(){
   var nF=it.k==="dialog"?it.d.fields.length:(it.k==="read"||it.k==="def"?3:2);
   for(var k=0;k<nF;k++){var el=document.getElementById("sf"+k);vals[k]=el?el.value:"";keep[k]=vals[k];}
   if(vals.some(function(v){return !v.trim()})){setFB2("每一格都要寫喔！");return;}
+  if(vals.some(hasZh)){setFB2("好像打到注音了！請把鍵盤切換成英文（按鍵盤左下角的地球🌐），再打一次。");return;}
   if(it.k==="dialog"){it.d.fields.forEach(function(f,k){var ok=f.accept.indexOf(norm(vals[k]))>=0;marks[k]=ok;if(!ok)all=false;});}
   else if(it.k==="read"){READS[it.r].q.forEach(function(q,k){var ok=q[2].indexOf(norm(vals[k]))>=0;marks[k]=ok;if(!ok)all=false;});}
   else if(it.k==="def"){it.qs.forEach(function(q,k){var v=norm(vals[k]),a=q[1].toLowerCase(),ok=v===a||v===a.replace(/^(a|an) /,"");marks[k]=ok;if(!ok)all=false;});}
@@ -2028,10 +2032,10 @@ function examPlay(key){if(cur.t.type==="speak")return true;cur.plays=cur.plays||
 function picStage(){
   var f=cur.fills||{}, s=cur.part;
   function p(id){return 'class="part'+(s===id?' sel':'')+'" data-act="part" data-id="'+id+'" fill="'+colourHex(f[id])+'"';}
-  return '<svg viewBox="0 0 320 240" role="img" aria-label="舞台：上面有一顆星星，左邊一顆氣球，箱子旁邊一顆氣球，牆上有一塊板子">'+
+  return '<svg viewBox="0 0 320 240" role="img" aria-label="舞台：左邊是粉紅色的牆，右邊是藍色的牆；上面有一顆星星，粉紅牆旁一顆氣球，箱子旁邊一顆氣球，牆上有一塊板子">'+
   '<rect x="0" y="0" width="320" height="240" fill="#fbf3ff"/>'+
   '<rect x="0" y="180" width="320" height="60" fill="#f0e2c8" stroke="var(--ink2)" stroke-width="3"/>'+
-  '<path d="M0 0h40v180H0zM280 0h40v180h-40z" fill="#f6c9e0" stroke="var(--ink2)" stroke-width="3"/>'+
+  '<path d="M0 0h40v180H0z" fill="#f6c9e0" stroke="var(--ink2)" stroke-width="3"/><path d="M280 0h40v180h-40z" fill="#cfe6ff" stroke="var(--ink2)" stroke-width="3"/>'+
   '<polygon '+p("star")+' points="160,14 170,38 196,40 176,56 183,82 160,68 137,82 144,56 124,40 150,38" stroke="var(--ink2)" stroke-width="3" stroke-linejoin="round"/>'+
   '<rect x="112" y="98" width="76" height="38" rx="4" fill="#ffffff" stroke="var(--ink2)" stroke-width="3"/><circle cx="150" cy="98" r="3" fill="var(--ink2)"/><text x="150" y="150" font-size="10" text-anchor="middle" fill="var(--ink2)">board</text>'+
   '<ellipse '+p("bal2")+' cx="70" cy="110" rx="20" ry="25" stroke="var(--ink2)" stroke-width="3"/><path d="M70 135q-6 20 2 40" fill="none" stroke="var(--ink2)" stroke-width="2"/>'+
