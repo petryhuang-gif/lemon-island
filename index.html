@@ -710,6 +710,89 @@ var CH5=[
    {q:"Tell me about your school. What do you like doing at school?",show:"",starter:"",model:"I like reading and drawing at school. My favourite lesson is English."},
    {q:"What did you do last weekend?",show:"",starter:"",model:"Last weekend, I went to the park with my family. We played and had a picnic."}]}
 ];
+/* ---------- chapter 6: exam drills (考前特訓營) ---------- */
+function rstory(t){return '<div class="letter">'+t.split("\n").map(function(x){return '<p>'+x+'</p>'}).join("")+'</div>';}
+var RH=["Find the words in the story. The answer is near them.","Write the words from the story. Spell them carefully."];
+var PH=["Look at the picture carefully. Find the thing in the question.","Write one or two words. Spell them carefully."];
+var LH=["Listen for names, numbers and spelling.","Listen again and write the words carefully."];
+var CHH=["There are four things to colour and one word to write.","Listen for where: next to, at the top, near the wall."];
+var CH6=[
+ {id:"d1",drill:true,type:"fields",skill:"Reading & Writing",title:"特訓・農場的一天",speaker:"teacher",story:"考試讀寫 Part 5：讀故事，用一個、兩個或三個字完成句子。",
+  prompt:"Read the story. Write one, two or three words to complete the sentences.",
+  extra:rstory("Last Saturday, Sam and his grandma went to a farm in the countryside. The farmer's name was Mr Field. He had lots of animals: cows, sheep and three big horses.\nSam wanted to ride a horse, but Mr Field said, 'You're too small. You can feed the baby goats.' The goats were very hungry, and they ate all the carrots in Sam's bag!\nThen it started to rain, so Sam and his grandma had hot soup in the farmer's kitchen. On the bus home, Sam was very tired, so he slept."),
+  fields:[{before:"1. Sam went to a farm with his",after:".",accept:["grandma","his grandma"]},{before:"2. The farm was in the",after:".",accept:["countryside"]},{before:"3. There were three big",after:"on the farm.",accept:["horses"]},{before:"4. Sam couldn't ride a horse because he was too",after:".",accept:["small"]},{before:"5. The goats ate all the",after:"in Sam's bag.",accept:["carrots"]},{before:"6. When it started to rain, they had",after:"in the kitchen.",accept:["soup","hot soup"]},{before:"7. On the bus home, Sam",after:"because he was tired.",accept:["slept"]}],
+  answerText:"1. grandma　2. countryside　3. horses　4. small　5. carrots　6. hot soup　7. slept",hints:RH,treasure:"📝 特訓 1"},
+ {id:"d2",drill:true,type:"fields",skill:"Reading & Writing",title:"特訓・公園的圖",speaker:"cloud",story:"考試讀寫 Part 6：看圖，完成句子、回答問題。",
+  prompt:"Look at the picture and read. Write one, two or three words.",
+  extra:function(){return sceneHTML({scene:[["rect",0,76,100,24,"#bfe8c9"],["🌳",2,4,100],["🐕",12,46,34],["👴",40,42,56],["📖",48,58,24],["🐦",56,4,26],["🐦",66,10,26],["🪁",30,2,40],["👧",76,44,56],["🎈",86,40,34]]});},
+  fields:[{before:"1. The dog is under the",after:".",accept:["tree","big tree"]},{before:"2. The man is reading a",after:".",accept:["book"]},{before:"3. There are",after:"birds in the sky.",accept:["two","2"]},{before:"4. What has the girl got? She has got a",after:".",accept:["balloon","red balloon"]},{before:"5. What colour is the balloon? It's",after:".",accept:["red"]}],
+  answerText:"1. tree　2. book　3. two　4. balloon　5. red",hints:PH,treasure:"📝 特訓 2"},
+ {id:"d3",drill:true,type:"fields",skill:"Listening",title:"特訓・游泳課報名",speaker:"teacher",story:"考試聽力 Part 2：聽對話，寫名字、數字或單字。",
+  prompt:"Listen and write a name, a number or a word.",
+  lines:[["A","Hello! Are you here for the swimming class?"],["C","Yes. My name's Grace."],["A","Grace what?"],["C","Grace Hall. H, A, L, L."],["A","How old are you, Grace?"],["C","I'm eight."],["A","Which day do you want to come?"],["C","Thursday, please. After school."],["C","Who's the teacher?"],["A","Mrs Rock. That's R, O, C, K."],["C","What do I need to bring?"],["A","Your swimsuit and a bottle of water."]],
+  fields:[{before:"1. Name: Grace",after:"",accept:["hall"]},{before:"2. Age:",after:"",accept:["8","eight"]},{before:"3. Day:",after:"",accept:["thursday","on thursday"]},{before:"4. Teacher: Mrs",after:"",accept:["rock"]},{before:"5. Bring: a swimsuit and a bottle of",after:"",accept:["water"]}],
+  answerText:"1. Hall　2. 8　3. Thursday　4. Rock　5. water",hints:LH,treasure:"📝 特訓 3"},
+ {id:"d4",drill:true,type:"colour",skill:"Listening",title:"特訓・塗色的房子",speaker:"teacher",story:"考試聽力 Part 5：聽指示，塗顏色、寫一個字。",
+  prompt:"Listen. Choose a part of the picture, then choose a colour. Then write the word.",
+  say:"Look at the house. Colour the door red. Now find the window at the top. Colour it green. And the window next to the door, colour it purple. Now the roof. Colour the roof yellow. Then write the word home on the door. Home.",
+  parts:["roof","door","win1","win2"],colourAns:[{part:"door",col:"red"},{part:"win2",col:"green"},{part:"win1",col:"purple"},{part:"roof",col:"yellow"}],write:{label:"Write the word on the door:",accept:["home"]},
+  answerText:"門紅色、上面的窗戶綠色、門旁邊的窗戶紫色、屋頂黃色，門上寫 home",hints:CHH,treasure:"📝 特訓 4"},
+ {id:"d5",drill:true,type:"fields",skill:"Reading & Writing",title:"特訓・維琪的新腳踏車",speaker:"cloud",story:"考試讀寫 Part 5：讀故事，用一個、兩個或三個字完成句子。",
+  prompt:"Read the story. Write one, two or three words to complete the sentences.",
+  extra:rstory("Vicky got a new bike for her birthday. It was purple, with white flowers on it. On Sunday morning, she rode it to the park with her brother, Ben.\nThey rode along the river and saw some ducks on the water. Then Vicky's bike hit a big rock, and she fell off! She hurt her leg, but she didn't cry.\nBen carried her bike, and they walked home slowly. Mum gave Vicky some ice cream."),
+  fields:[{before:"1. Vicky got a new bike for her",after:".",accept:["birthday"]},{before:"2. The bike was",after:"with white flowers on it.",accept:["purple"]},{before:"3. On Sunday, Vicky rode to the park with",after:".",accept:["ben","her brother","her brother ben"]},{before:"4. They saw some ducks on the",after:".",accept:["water","river"]},{before:"5. Vicky's bike hit a big",after:".",accept:["rock"]},{before:"6. Vicky hurt her",after:".",accept:["leg"]},{before:"7. Ben",after:"Vicky's bike home.",accept:["carried"]}],
+  answerText:"1. birthday　2. purple　3. Ben　4. water　5. rock　6. leg　7. carried",hints:RH,treasure:"📝 特訓 5"},
+ {id:"d6",drill:true,type:"fields",skill:"Reading & Writing",title:"特訓・廚房的圖",speaker:"teacher",story:"考試讀寫 Part 6：看圖，完成句子、回答問題。",
+  prompt:"Look at the picture and read. Write one, two or three words.",
+  extra:function(){return sceneHTML({bg:"room",scene:[["🕒",44,4,40],["🪑",4,52,62],["🐱",8,38,40],["table",40,58,36],["🍎",42,46,26],["🍎",50,46,26],["🍎",58,46,26],["🍎",66,46,26],["🧑‍🍳",80,18,62],["👦",22,40,52],["🥛",30,56,26]]});},
+  fields:[{before:"1. The cat is on the",after:".",accept:["chair"]},{before:"2. There are",after:"apples on the table.",accept:["four","4"]},{before:"3. What is the cook doing? He is",after:"food.",accept:["cooking","making"]},{before:"4. Where is the clock? It's on the",after:".",accept:["wall"]},{before:"5. What is the boy drinking? He is drinking",after:".",accept:["milk"]}],
+  answerText:"1. chair　2. four　3. cooking　4. wall　5. milk",hints:PH,treasure:"📝 特訓 6"},
+ {id:"d7",drill:true,type:"fields",skill:"Listening",title:"特訓・生日派對",speaker:"cloud",story:"考試聽力 Part 2：聽對話，寫名字、數字或單字。",
+  prompt:"Listen and write a name, a number or a word.",
+  lines:[["C","Mum, can I go to Zoe's birthday party?"],["A","When is it?"],["C","On Saturday, at three o'clock."],["A","Where is it?"],["C","At her house. It's in Long Street."],["A","What number?"],["C","Twenty-five."],["A","What present can you buy for Zoe?"],["C","She loves pandas. I want to buy her a panda book."]],
+  fields:[{before:"1. Day:",after:"",accept:["saturday","on saturday"]},{before:"2. The party starts at",after:"o'clock.",accept:["3","three"]},{before:"3. Street:",after:"Street",accept:["long"]},{before:"4. House number:",after:"",accept:["25","twenty-five","twenty five"]},{before:"5. Present: a panda",after:"",accept:["book"]}],
+  answerText:"1. Saturday　2. 3　3. Long　4. 25　5. book",hints:LH,treasure:"📝 特訓 7"},
+ {id:"d8",drill:true,type:"colour",svg:"picStage",skill:"Listening",title:"特訓・舞台塗色",speaker:"teacher",story:"考試聽力 Part 5：聽指示，塗顏色、寫一個字。",
+  prompt:"Listen. Choose a part of the picture, then choose a colour. Then write the word.",
+  say:"Look at the picture. Find the star at the top. Colour it purple. Now the box. Colour the box pink. Find the balloon next to the box. Colour it green. And the balloon near the pink wall, colour it blue. Now write the word star on the board. Star.",
+  parts:["star","bal1","bal2","box"],colourAns:[{part:"star",col:"purple"},{part:"box",col:"pink"},{part:"bal1",col:"green"},{part:"bal2",col:"blue"}],write:{label:"Write the word on the board:",accept:["star"]},
+  answerText:"星星紫色、箱子粉紅色、箱子旁邊的氣球綠色、粉紅牆旁的氣球藍色，板子上寫 star",hints:CHH,treasure:"📝 特訓 8"},
+ {id:"d9",drill:true,type:"fields",skill:"Reading & Writing",title:"特訓・不見的鸚鵡",speaker:"teacher",story:"考試讀寫 Part 5：讀故事，用一個、兩個或三個字完成句子。",
+  prompt:"Read the story. Write one, two or three words to complete the sentences.",
+  extra:rstory("Mrs Brown has got a clever green parrot called Lily. Lily can say 'hello' and 'goodbye'.\nOne morning, Mrs Brown opened the window, and Lily flew out! Mrs Brown looked for her in the garden and in the park, but she couldn't find her.\nIn the afternoon, a girl called Daisy phoned Mrs Brown. 'There's a green bird at the library,' she said. 'It's sitting on the books and saying hello to everyone!' Mrs Brown laughed and went to get her parrot."),
+  fields:[{before:"1. Mrs Brown's parrot is",after:".",accept:["green","clever"]},{before:"2. Lily can say 'hello' and",after:".",accept:["goodbye"]},{before:"3. Lily flew out of the",after:".",accept:["window"]},{before:"4. Mrs Brown looked for Lily in the garden and in the",after:".",accept:["park"]},{before:"5. In the afternoon,",after:"phoned Mrs Brown.",accept:["daisy","a girl"]},{before:"6. Lily was at the",after:".",accept:["library"]},{before:"7. Lily was sitting on the",after:".",accept:["books"]}],
+  answerText:"1. green　2. goodbye　3. window　4. park　5. Daisy　6. library　7. books",hints:RH,treasure:"📝 特訓 9"},
+ {id:"d10",drill:true,type:"fields",skill:"Reading & Writing",title:"特訓・海邊的圖",speaker:"cloud",story:"考試讀寫 Part 6：看圖，完成句子、回答問題。",
+  prompt:"Look at the picture and read. Write one, two or three words.",
+  extra:function(){return sceneHTML({scene:[["rect",0,46,100,30,"#7cc4f2"],["rect",0,76,100,24,"#f3dca8"],["☀️",4,2,44],["⛵",70,40,46],["🐬",46,54,40],["🏊",20,56,44],["👧",78,62,52],["🍦",88,72,26]]});},
+  fields:[{before:"1. The girl is eating an",after:".",accept:["ice cream","ice-cream"]},{before:"2. There is a boat on the",after:".",accept:["sea","water"]},{before:"3. What is the boy doing? He is",after:".",accept:["swimming"]},{before:"4. What animal can you see in the sea? A",after:".",accept:["dolphin"]},{before:"5. What's the weather like? It's",after:".",accept:["sunny","hot","hot and sunny"]}],
+  answerText:"1. ice cream　2. sea　3. swimming　4. dolphin　5. sunny",hints:PH,treasure:"📝 特訓 10"},
+ {id:"d11",drill:true,type:"fields",skill:"Listening",title:"特訓・看醫生",speaker:"teacher",story:"考試聽力 Part 2：聽對話，寫名字、數字或單字。",
+  prompt:"Listen and write a name, a number or a word.",
+  lines:[["A","Hello. What's your name?"],["C","Tom White."],["A","How old are you, Tom?"],["C","I'm nine."],["A","What's the matter?"],["C","I've got a toothache."],["A","When did it start?"],["C","Yesterday, after lunch. I ate lots of sweets."],["A","OK. Drink lots of water, and don't eat sweets for three days!"]],
+  fields:[{before:"1. Name: Tom",after:"",accept:["white"]},{before:"2. Age:",after:"",accept:["9","nine"]},{before:"3. Tom has got a",after:"",accept:["toothache"]},{before:"4. It started:",after:"",accept:["yesterday"]},{before:"5. No sweets for",after:"days",accept:["3","three"]}],
+  answerText:"1. White　2. 9　3. toothache　4. yesterday　5. 3",hints:LH,treasure:"📝 特訓 11"},
+ {id:"d12",drill:true,type:"colour",skill:"Listening",title:"特訓・彩色小屋",speaker:"cloud",story:"考試聽力 Part 5：聽指示，塗顏色、寫一個字。",
+  prompt:"Listen. Choose a part of the picture, then choose a colour. Then write the word.",
+  say:"Look at the house. Colour the roof green. The door? Colour it blue. Now the window next to the door. Colour it yellow. And the window at the top, colour it red. Then write the word sun on the door. Sun.",
+  parts:["roof","door","win1","win2"],colourAns:[{part:"roof",col:"green"},{part:"door",col:"blue"},{part:"win1",col:"yellow"},{part:"win2",col:"red"}],write:{label:"Write the word on the door:",accept:["sun"]},
+  answerText:"屋頂綠色、門藍色、門旁邊的窗戶黃色、上面的窗戶紅色，門上寫 sun",hints:CHH,treasure:"📝 特訓 12"},
+ {id:"d13",drill:true,type:"fields",skill:"Reading & Writing",title:"特訓・海邊的一天",speaker:"teacher",story:"考試讀寫 Part 5：讀故事，用一個、兩個或三個字完成句子。",
+  prompt:"Read the story. Write one, two or three words to complete the sentences.",
+  extra:rstory("It was a hot and sunny day, so Jack's family went to the beach. Jack and his sister Mary played with a ball, and then they swam in the sea.\nMary saw a little fish and tried to catch it, but it was too quick. At lunch, they ate sandwiches and drank lemonade.\nIn the afternoon, the weather changed. It got cloudy and windy, and Mum said, 'We must go home now!'"),
+  fields:[{before:"1. Jack's family went to the beach because it was hot and",after:".",accept:["sunny"]},{before:"2. Jack and Mary played with a",after:".",accept:["ball"]},{before:"3. Mary saw a little",after:".",accept:["fish"]},{before:"4. Mary couldn't catch it because it was too",after:".",accept:["quick"]},{before:"5. At lunch, they ate",after:".",accept:["sandwiches"]},{before:"6. In the afternoon, it got cloudy and",after:".",accept:["windy"]},{before:"7. Mum wanted to go",after:".",accept:["home"]}],
+  answerText:"1. sunny　2. ball　3. fish　4. quick　5. sandwiches　6. windy　7. home",hints:RH,treasure:"📝 特訓 13"},
+ {id:"d14",drill:true,type:"fields",skill:"Reading & Writing",title:"特訓・房間的圖",speaker:"cloud",story:"考試讀寫 Part 6：看圖，完成句子、回答問題。",
+  prompt:"Look at the picture and read. Write one, two or three words.",
+  extra:function(){return sceneHTML({bg:"room",scene:[["🪟",40,4,48],["🌙",45,8,24],["🖼️",6,6,34],["🖼️",20,6,34],["🛏️",58,40,110],["👧",66,54,44],["📖",74,64,20],["🐈",68,84,24],["🧦",14,80,26],["🧦",24,80,26]]});},
+  fields:[{before:"1. It is night. You can see the",after:"in the window.",accept:["moon"]},{before:"2. The cat is under the",after:".",accept:["bed"]},{before:"3. What is the girl doing? She is",after:".",accept:["reading","reading a book"]},{before:"4. There are two",after:"on the floor.",accept:["socks"]},{before:"5. How many pictures are on the wall?",after:"",accept:["two","2"]}],
+  answerText:"1. moon　2. bed　3. reading　4. socks　5. two",hints:PH,treasure:"📝 特訓 14"},
+ {id:"d15",drill:true,type:"fields",skill:"Reading & Writing",title:"特訓・學校的表演",speaker:"teacher",story:"考試讀寫 Part 5：讀故事，用一個、兩個或三個字完成句子。",
+  prompt:"Read the story. Write one, two or three words to complete the sentences.",
+  extra:rstory("Every year, Anna's school has a big show. This year, Anna's class sang songs about animals, and Anna was a penguin! Her mum made her a black and white dress.\nBefore the show, Anna was frightened, but her teacher said, 'You can do it!' Anna sang very loudly, and everyone was happy.\nAfter the show, Anna's grandpa gave her some flowers. 'You were the best penguin in the world!' he said."),
+  fields:[{before:"1. Anna's class sang songs about",after:".",accept:["animals"]},{before:"2. Anna was a",after:"in the show.",accept:["penguin"]},{before:"3. Her mum made her a black and white",after:".",accept:["dress"]},{before:"4. Before the show, Anna was",after:".",accept:["frightened"]},{before:"5. Anna sang very",after:".",accept:["loudly"]},{before:"6. After the show, her grandpa gave her some",after:".",accept:["flowers"]},{before:"7. Grandpa said she was the best penguin in the",after:".",accept:["world"]}],
+  answerText:"1. animals　2. penguin　3. dress　4. frightened　5. loudly　6. flowers　7. world",hints:RH,treasure:"📝 特訓 15"}
+];
 var CHAPTERS=[
  {id:"ch1",name:"第一章",title:"失蹤的魔法星星",intro:"一關一關往前走，閃閃發亮的就是下一關。完成的關卡可以隨時再玩。",tasks:CH1,star:"#5fd38d",gift:"outfit:lav",endBtn:"讓守護星發光",
   endTitle:"綠色守護星回到天空了！",endText:"綠色守護星說：「謝謝你，檸檬！你的英文魔法好厲害！」檸檬用聽、讀、寫、說四種魔法，找回了第一顆守護星。雲雲老師送你一套薰衣草魔法少女服裝，已經放進魔法衣櫥，也幫你換上了！準備前往雲朵小鎮吧！",endSay:"You did it, Lemon! You found the Forest Star!"},
@@ -720,7 +803,9 @@ var CHAPTERS=[
  {id:"ch4",name:"第四章",title:"夢幻舞台的邀請",intro:"這一章是口說題，跟考試的口說 Part 1、2、3、4 一樣，還有一關聽力 Part 5 塗色。口說題請爸爸媽媽陪著聽、幫忙評分。",tasks:CH4,star:"#6cc2ff",endBtn:"點亮藍色守護星",
   endTitle:"藍色守護星回到天空了！",endText:"表演好成功！台下的大家一起拍手。藍色守護星說：「你說得好清楚！」最後一顆金色星星，就藏在城堡裡……",endSay:"What a great show, Lemon! You found the blue star!"},
  {id:"ch5",name:"第五章",title:"守護星星的最終挑戰",intro:"考試模式：這一章跟真的考試一樣，沒有提示，聽力只能聽兩次。聽、讀、寫、說全部都有。",tasks:CH5,star:"#ffcf3f",endBtn:"點亮金色守護星",
-  endTitle:"五顆守護星全部回來了！",endText:"金色守護星飛回城堡上空，五顆星星一起發光，整座魔法島又亮起來了！雲雲老師說：「檸檬，你是真正的英語魔法師！」",endSay:"You did it, Lemon! All five stars are home! Well done!"}
+  endTitle:"五顆守護星全部回來了！",endText:"金色守護星飛回城堡上空，五顆星星一起發光，整座魔法島又亮起來了！雲雲老師說：「檸檬，你是真正的英語魔法師！」",endSay:"You did it, Lemon! All five stars are home! Well done!"},
+ {id:"ch6",name:"考前特訓營",title:"考前特訓營",intro:"五顆星都找回來了！接下來每天練考試題型的新題目：讀故事寫答案、看圖寫字、聽對話填資訊、聽指示塗色。12 月 15 日以後，跟真的考試一樣沒有提示。",tasks:CH6,star:"#ff9ed8",endBtn:"完成特訓",
+  endTitle:"特訓全部完成！",endText:"十五關特訓都完成了！之後每天會複習，題目越來越像真的考試。檸檬，繼續加油！",endSay:"Great work, Lemon! Your English is brilliant!"}
 ];
 function addSetIn(arr,id,s2){var b=arr.filter(function(t){return t.id===id})[0],s1={};Object.keys(s2).forEach(function(k){s1[k]=b[k];});b.sets=[s1,s2];}
 addSetIn(CH2,"c2t4",{extra:'<div class="letter"><p>Grandpa Bill lives in a small house near the river. Every afternoon, he sits in the garden and reads a book.</p><p>Last Tuesday, he couldn\'t find his glasses. He looked in the kitchen and in the bathroom, but they weren\'t there. His granddaughter, Jill, came to help. \'Are they in your coat?\' she asked. Grandpa looked, but there was nothing in his coat.</p><p>Then Jill saw the cat on the sofa. The cat was sleeping on something. \'Grandpa! The cat is sleeping on your glasses!\' Grandpa laughed. \'Silly cat!\' he said. Then Jill and Grandpa had tea and cake in the garden.</p></div>',
@@ -944,6 +1029,7 @@ function bodyHTML(t){
 function renderTask(i){
   setBg(CHBG[CHAPTERS[curChap].id]);
   var base=TASKS[i],t=base;
+  if(base.drill&&dayIdx()>=Math.floor(Date.UTC(2026,11,15)/864e5)){t={};Object.keys(base).forEach(function(k){t[k]=base[k]});t.exam=true;base=t;}
   if(base.sets){var pl=((state.tasks[base.id]||{}).plays)||0;var st=base.sets[pl%base.sets.length];t={};Object.keys(base).forEach(function(k){t[k]=base[k]});Object.keys(st).forEach(function(k){t[k]=st[k]});t.setNo=(pl%base.sets.length)+1;}
   cur={i:i,t:t,level:0,attempts:0,revealed:false,sel:{},fills:{},part:null,step:0,phase:"ask",starter:false,ratings:[],flash:null,badQ:null,asg:{},msel:null,mbad:null,plays:{}};
   var listen=!!(t.say||t.lines);
@@ -1096,7 +1182,7 @@ function renderEnd(){
    '<p class="muted" style="max-width:32em;margin:0">'+esc(ch.endText)+'</p>'+
    '<div class="cast"><figure><img class="spk" src="'+lemonImg()+'" alt="檸檬"><figcaption>檸檬</figcaption></figure><figure><img class="spk" src="img/teacher.webp" alt="雲雲老師"><figcaption>雲雲老師</figcaption></figure></div>'+
    
-   (nextOpen?'':(state.bigPrize?'<div class="bigprize">🏆 你得到大獎：<b>'+esc(state.bigPrize)+'</b>　拿給爸爸媽媽看！</div>':'<p class="note">五顆守護星都找回來了！想再練習，可以回地圖重玩任何一關。</p>'))+
+   (ch.id!=="ch5"?'':(state.bigPrize?'<div class="bigprize">🏆 你得到大獎：<b>'+esc(state.bigPrize)+'</b>　拿給爸爸媽媽看！</div>':'<p class="note">五顆守護星都找回來了！想再練習，可以回地圖重玩任何一關。</p>'))+
    '<div class="row" style="justify-content:center">'+(nextMission()?'<button class="btn main" data-act="mgo">下一個任務 →</button>':'<button class="btn main" data-act="home">回首頁</button>')+'<button class="btn" data-act="map">回地圖</button><button class="btn" data-act="parent">家長區</button></div>'+
   '</section>';
   if(hasTTS)setTimeout(function(){speak(ch.endSay)},400);
@@ -1781,7 +1867,7 @@ var LOCS=[{x:92,y:222,icon:"🌳🌲",lb:"失蹤的魔法星星"},{x:150,y:148,i
 var TRAILDECO={ch1:["🌳","🍄","🌲","🌸","🦋","🌼","🐿️","🌳"],ch2:["🏠","🎈","🏡","🌷","🎪","🏪","🎀","🌈"]};
 
 /* ---------- illustrated screens ---------- */
-var CHBG={ch1:"forest",ch2:"town",ch3:"library",ch4:"stage",ch5:"castle"};
+var CHBG={ch1:"forest",ch2:"town",ch3:"library",ch4:"stage",ch5:"castle",ch6:"library"};
 function setBg(n){var el=document.getElementById("pagebg");if(!el)return;if(n){var u="img/"+n+".jpg";if(n==="home"){var b=wItem("bg",wd().bg);if(b&&b.img)u=b.img;}el.style.backgroundImage="url("+u+"), url(img/home.jpg)";el.className="on";}else{el.className="";}}
 document.addEventListener("error",function(e){var t=e.target;if(t&&t.tagName==="IMG"){var fb=t.getAttribute("data-fb")||(/\/o_/.test(t.src)?"img/lemon.webp":null);if(fb&&t.src.indexOf(fb)<0){t.src=fb;t.classList.add("sil");}}},true);
 function renderDex(){
@@ -1796,7 +1882,7 @@ function renderDex(){
    '<div class="dgrid">'+cards+'</div></section>';
   window.scrollTo(0,0);
 }
-var STARCOL=[{c:"#5fd38d",n:"綠色"},{c:"#ff8cc6",n:"粉紅色"},{c:"#b08cff",n:"紫色"},{c:"#6cc2ff",n:"藍色"},{c:"#ffcf3f",n:"金色"}];
+var STARCOL=[{c:"#5fd38d",n:"綠色"},{c:"#ff8cc6",n:"粉紅色"},{c:"#b08cff",n:"紫色"},{c:"#6cc2ff",n:"藍色"},{c:"#ffcf3f",n:"金色"},{c:"#ff9ed8",n:"彩虹"}];
 function starImg(lit,cls,col){var id="G"+(++_uid);col=col||"#ffcf3f";
   return '<svg class="'+(cls||"staricon")+(lit?'':' off')+'" viewBox="0 0 100 100" role="img" aria-label="守護星"><defs><radialGradient id="'+id+'" cx=".38" cy=".32" r=".75"><stop offset="0" stop-color="#ffffff"/><stop offset=".3" stop-color="'+col+'" stop-opacity=".75"/><stop offset="1" stop-color="'+col+'"/></radialGradient></defs>'+
    '<path d="M50 5l13 28 30 4-22 21 6 30-27-15-27 15 6-30-22-21 30-4z" fill="url(#'+id+')" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>'+
@@ -1810,7 +1896,7 @@ function renderHome(){
    '<div class="titlebar"><h1>檸檬的<span>英語魔法</span>冒險島</h1><p>'+coverLine()+'</p>'+
    '<div class="stars5" aria-label="找回的守護星">'+[0,1,2,3,4].map(function(i){var lit=i<CHAPTERS.length&&chapDone(i);return starImg(lit,"staricon",STARCOL[i].c);}).join("")+'</div>'+
    (state.bigPrize?'<div class="bigprize">🏆 找回五顆守護星，就能得到：<b>'+esc(state.bigPrize)+'</b></div>':'')+
-   '<div class="stats"><span class="chip">⭐ 守護星 '+CHAPTERS.filter(function(c,i){return chapDone(i)}).length+' / 5</span><span class="chip">📍 已過關 '+dn+' / '+tot+'</span><span class="chip">⚡ 魔法能量 '+(state.energy||0)+'</span></div></div>'+
+   '<div class="stats"><span class="chip">⭐ 守護星 '+CHAPTERS.filter(function(c,i){return i<5&&chapDone(i)}).length+' / 5</span><span class="chip">📍 已過關 '+dn+' / '+tot+'</span><span class="chip">⚡ 魔法能量 '+(state.energy||0)+'</span></div></div>'+
    todayHTML()+islandHTML()+
    (hasTTS?'':'<p class="note">這台裝置不能朗讀英文。聽力任務請家長點「家長看原文」唸給她聽。</p>')+
    '<p class="foot">🌸 Cambridge A1 Movers 練習遊戲 · 原創練習題，不是劍橋官方試題 · 用字已對照劍橋官方 Starters / Movers 單字表<br><button class="parentlink" data-act="parent">家長區</button></p>'+
@@ -1856,7 +1942,7 @@ function renderChapStory(c){
    storyCard(st,0,1,'<button class="btn main" data-act="chapgo" data-c="'+c+'">開始冒險 →</button>');
 }
 function openChap(c){if(!chapOpen(c))return;setChap(c);var id=CHAPTERS[c].id;state.chapSeen=state.chapSeen||{};if(!state.chapSeen[id]&&CHSTORY[id]){renderChapStory(c);}else renderMap();}
-var CHINFO=[{icon:"🌳",skill:"聽、讀、寫、說 入門"},{icon:"🏡",skill:"讀寫 Part 1、3、4、5"},{icon:"📚",skill:"聽力 Part 1、3、4 · 讀寫 Part 2"},{icon:"🎤",skill:"口說 Part 1–4 · 聽力 Part 5"},{icon:"🏰",skill:"全部題型 · 模擬考"}];
+var CHINFO=[{icon:"🌳",skill:"聽、讀、寫、說 入門"},{icon:"🏡",skill:"讀寫 Part 1、3、4、5"},{icon:"📚",skill:"聽力 Part 1、3、4 · 讀寫 Part 2"},{icon:"🎤",skill:"口說 Part 1–4 · 聽力 Part 5"},{icon:"🏰",skill:"全部題型 · 模擬考"},{icon:"📝",skill:"考試題型特訓 · 新題目"}];
 
 /* ---------- daily mission ---------- */
 function allTaskRefs(){var out=[];CHAPTERS.forEach(function(ch,c){ch.tasks.forEach(function(t,i){out.push({c:c,i:i,t:t});});});return out;}
@@ -1907,7 +1993,7 @@ function todayHTML(){
    '<ol class="mlist">'+items+'</ol>'+
    '<div class="row">'+btn+'<button class="btn lav" data-act="shop">🎁 獎勵商店</button><button class="btn lav" data-act="wardrobe">👗 魔法衣櫥</button><button class="btn lav" data-act="dex">📖 單字圖鑑 '+dexCount()+'</button><button class="btn" data-act="intro">看故事</button></div></div></div>';
 }
-var CHFOCUS=["聽讀寫說入門","讀寫","聽力","口說","模擬考"];
+var CHFOCUS=["聽讀寫說入門","讀寫","聽力","口說","模擬考","考試題型"];
 function islandHTML(){
   var all=CHAPTERS.concat(FUTURE),cur=0;
   for(var i=0;i<CHAPTERS.length;i++){if(chapOpen(i)&&!chapDone(i)){cur=i;break;}cur=i;}
@@ -1934,7 +2020,7 @@ function chapterCardsHTML(){
       '<span class="cst">'+status+'</span></button>';
   }).join("")+'</div>';
 }
-var SPOTS=[{x:20,y:63,lb:"失蹤的魔法星星"},{x:21,y:30,lb:"雲朵小鎮的秘密"},{x:50,y:16,lb:"消失的魔法故事"},{x:77,y:43,lb:"夢幻舞台的邀請"},{x:85,y:12,lb:"最終挑戰"}];
+var SPOTS=[{x:20,y:63,lb:"失蹤的魔法星星"},{x:21,y:30,lb:"雲朵小鎮的秘密"},{x:50,y:16,lb:"消失的魔法故事"},{x:77,y:43,lb:"夢幻舞台的邀請"},{x:85,y:12,lb:"最終挑戰"},{x:52,y:52,lb:"考前特訓營"}];
 function renderChapters(){
   setBg(null);
   var all=CHAPTERS.concat(FUTURE),cur=0;
@@ -1968,7 +2054,7 @@ function renderMap(){
   app.innerHTML='<div class="topbar"><button class="btn small" data-act="chapters">← 回魔法島</button><span class="chip">已完成 '+doneCount()+' / '+n+'　⚡ '+(state.energy||0)+'</span></div>'+
    '<section class="map"><div class="mapbanner">'+starImg(open>=n,"staricon",ch.star)+'<div style="min-width:0"><h2>'+ch.name+'｜'+esc(ch.title)+'</h2><p class="muted" style="margin:0">'+esc(ch.intro)+'</p></div></div>'+
    '<div class="trail" style="height:'+H+'px;background-image:url(img/'+CHBG[ch.id]+'.jpg)"><svg class="path" viewBox="0 0 100 '+H+'" preserveAspectRatio="none" aria-hidden="true"><polyline points="'+poly+'" fill="none" stroke="#fff" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" opacity=".85"/><polyline points="'+poly+'" fill="none" stroke="#f3b6d8" stroke-width="5" stroke-dasharray="2 14" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>'+nodes+av+'</div>'+
-   '<p class="muted" style="margin:0">閃閃發亮的是今天的任務。過完這裡的 '+n+' 關，就能找回'+STARCOL[curChap].n+'守護星 ⭐。</p>'+
+   '<p class="muted" style="margin:0">閃閃發亮的是今天的任務。'+(ch.id==="ch6"?'特訓營每天會排新的考試題型。':'過完這裡的 '+n+' 關，就能找回'+STARCOL[curChap].n+'守護星 ⭐。')+'</p>'+
    (open>=n?'<div class="row" style="margin-top:18px"><button class="btn main" data-act="end">'+ch.endBtn+'</button></div>':'')+
    (nextMission()?'<div class="row" style="margin-top:12px"><button class="btn main" data-act="mgo">前往下一個任務 →</button></div>':'')+
   '</section>';
