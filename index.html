@@ -955,7 +955,7 @@ function renderTrainIntro(){
   setBg("library");
   app.innerHTML='<div class="topbar"><button class="btn small" data-act="home">← 首頁</button></div>'+
    '<section class="end"><img class="spk" src="img/cloud.webp" alt="雲朵" style="max-width:260px">'+
-   '<div class="bubble" style="max-width:30em"><span class="who">雲朵</span>出發找守護星之前，我們先來練習今天的魔法！認單字、拼單字，再挑戰一題考試題型。練完就有魔法能量，可以出發冒險了。</div>'+
+   '<div class="bubble" style="max-width:30em"><span class="who">雲朵</span>出發之前，我們先來練習今天的魔法！'+(teacherWeek()?'這週會多練老師進度的單字：'+weekLabel()+'。':'')+'認單字、拼單字，再挑戰一題考試題型。練完就有魔法能量，可以出發冒險了。</div>'+
    '<div class="row" style="justify-content:center"><button class="btn main" data-act="sp-start">🪄 開始魔法訓練（約 7 分鐘）</button></div>'+
    '<p class="muted" style="margin:0">每天練一次，練完就去做今天的冒險任務。</p>'+
   '</section>';
@@ -1271,7 +1271,7 @@ function pickWords(n){
   var due=POOL.filter(function(w){var r=s.words[w[0]];return r&&r.due<=today;}).sort(function(a,b){return s.words[a[0]].box-s.words[b[0]].box;});
   var out=due.slice(0,Math.min(n,3));
   if(out.length<n){
-    var mv=SPELLM.filter(function(w){return !s.words[w[0]];}),st=WORDS.filter(function(w){return w[2]==="S"&&!s.words[w[0]];});
+    var wk=teacherWeek(),mv0=SPELLM.filter(function(w){return !s.words[w[0]];}),mv=mv0.filter(function(w){return inWeek(w[0],wk)}).concat(mv0.filter(function(w){return !inWeek(w[0],wk)})),st=WORDS.filter(function(w){return w[2]==="S"&&!s.words[w[0]];});
     out=out.concat(mv.concat(st).slice(0,n-out.length));
   }
   if(out.length<n){out=out.concat(due.slice(out.length,n));}
@@ -1416,6 +1416,7 @@ function spellParentHTML(){
   var rc=(s.rec||{}),rk=Object.keys(rc),rKnown=rk.filter(function(w){return rc[w].box>=3}).length;
   var spm=SPELLM.filter(function(w){var r=s.words[w[0]];return r&&r.box>=4}).length;
   return '<section class="panel"><h2>魔法訓練紀錄</h2>'+
+   (teacherWeek()?'<p style="margin:0"><b>老師本週進度</b>：'+esc(weekLabel())+'（認字和拼字會優先出這些字）</p>':'')+
    '<p style="margin:0"><b>認單字</b>（Movers '+VOCAB.length+' 個）：看過 '+rk.length+' 個，記住 '+rKnown+' 個（連續答對兩次以上）。每天 10 個新字＋複習。</p>'+
    '<p style="margin:0"><b>拼單字</b>（優先 '+SPELLM.length+' 個常考字）：拼熟 '+spm+' 個。全部拼字練過 '+ws.length+' 個，熟練 '+mastered+' 個。</p>'+
    '<p class="muted" style="margin:0">只計第一次就答對。</p>'+
@@ -1481,6 +1482,21 @@ var PICS=[
 var VOCAB_RAW="!bat=蝙蝠;!dolphin=海豚;!kangaroo=袋鼠;!kitten=小貓;!lion=獅子;!panda=熊貓;!parrot=鸚鵡;!penguin=企鵝;!puppy=小狗;!rabbit=兔子;!shark=鯊魚;!snail=蝸牛;!whale=鯨魚;cage=籠子;!back=背部;!beard=鬍子（下巴）;moustache=鬍子（嘴巴上面）;!neck=脖子;!shoulder=肩膀;!stomach=肚子;!tooth=一顆牙齒;!teeth=牙齒（很多顆）;!cold=感冒；冷的;!cough=咳嗽;earache=耳朵痛;!headache=頭痛;stomach-ache=肚子痛;toothache=牙齒痛;temperature=發燒；體溫;hurt=受傷；弄痛;ill=生病的;sick=生病的;!dentist=牙醫;!doctor=醫生;!nurse=護士;!hospital=醫院;!fat=胖的;!thin=瘦的;!tall=高的;!curly=捲捲的（頭髮）;!straight=直的;blond=金色的（頭髮）;!coat=外套;!helmet=安全帽;!scarf=圍巾;!sweater=毛衣;!swimsuit=泳衣;pair=一雙；一對;!dress=洋裝;!bottle=瓶子;!bowl=碗;!cheese=起司;!coffee=咖啡;!cup=杯子;!glass=玻璃杯;!milkshake=奶昔;!noodles=麵;!pancake=鬆餅;!pasta=義大利麵;!picnic=野餐;!plate=盤子;!salad=沙拉;!sandwich=三明治;sauce=醬汁;!soup=湯;!tea=茶;!vegetable=蔬菜;!hungry=餓的;!thirsty=口渴的;!balcony=陽台;!basement=地下室;!blanket=毯子;downstairs=在樓下;upstairs=在樓上;lift=電梯;!floor=地板；樓層;!roof=屋頂;!shower=淋浴;!stairs=樓梯;!towel=毛巾;!toothbrush=牙刷;toothpaste=牙膏;seat=座位;!building=大樓;café=咖啡店;!cinema=電影院;!circus=馬戲團;!city=城市;countryside=鄉下;!farm=農場;!field=田野;!forest=森林;funfair=遊樂園;!grass=草;ground=地面;!island=島;!jungle=叢林;!lake=湖;!library=圖書館;!market=市場;!mountain=山;!park=公園;place=地方;!pool=游泳池;!river=河;!road=馬路;!rock=岩石;!sky=天空;!shop=商店;!station=車站;!supermarket=超市;!town=城鎮;!village=村莊;!waterfall=瀑布;world=世界;sports centre=運動中心;bus station=公車站;car park=停車場;!cloud=雲;!cloudy=多雲的;!rain=雨；下雨;!rainbow=彩虹;!snow=雪；下雪;!sunny=晴朗的;!weather=天氣;!wet=濕的;dry=乾的;!wind=風;!windy=風很大的;ice=冰;!hot=熱的;!aunt=阿姨；姑姑;!uncle=叔叔；舅舅;!daughter=女兒;!son=兒子;grandson=孫子;granddaughter=孫女;grandparents=祖父母;grown-up=大人;!parent=爸爸或媽媽;!clown=小丑;!cook=廚師；煮;!driver=司機;!farmer=農夫;!pirate=海盜;player=選手；玩家;someone=某個人;everyone=每個人;!ticket=票;tractor=拖拉機;trip=旅行；遠足;travel=旅行;holiday=假期;app=應用程式（App）;!email=電子郵件;internet=網路;laptop=筆記型電腦;website=網站;message=訊息;text=傳簡訊；文字;video=影片;!film=電影;movie=電影;comic=漫畫;!homework=功課;!map=地圖;marker=麥克筆;mistake=錯誤;model=模型;band=樂團;!dance=跳舞;goal=球門；進球;net=網子;score=得分;skate=溜冰;skip=跳繩;sail=開船；航行;!swim=游泳;sports=運動;!treasure=寶藏;!party=派對;!present=禮物;shopping=買東西;!Monday=星期一;!Tuesday=星期二;!Wednesday=星期三;!Thursday=星期四;!Friday=星期五;!Saturday=星期六;!Sunday=星期日;!week=一週;!weekend=週末;!yesterday=昨天;o'clock=……點鐘;first=第一;second=第二；秒;third=第三;last=最後的；上一個;then=然後;before=在……之前;after=在……之後;always=總是;often=常常;sometimes=有時候;never=從來不;when=什麼時候;be called=名字叫做;break=打破;bring=帶來;build=蓋；建造;call=打電話；叫;carry=搬；提;!catch=接住；抓到;change=改變；換;!climb=爬;!cry=哭;!drive=開車;drop=掉下；弄掉;dream=做夢；夢;fall=跌倒；掉下來;feed=餵;fix=修理;!fly=飛;grow=長大；種;hide=躲；藏;hop=單腳跳;invite=邀請;!kick=踢;!laugh=笑;lose=弄丟；輸;mean=意思是;move=移動；搬家;need=需要;practise=練習;!ride=騎;send=寄；傳送;!shout=大叫;stop=停止;teach=教;think=想；認為;understand=了解；聽得懂;wait=等;wake up=醒來;!wash=洗;!wave=揮手;work=工作;afraid=害怕的;asleep=睡著的;awake=醒著的;boring=無聊的;!brave=勇敢的;brilliant=很棒的;!busy=忙的;careful=小心的;!clever=聰明的;!dangerous=危險的;!different=不一樣的;!difficult=困難的;!easy=容易的;exciting=令人興奮的;!famous=有名的;fine=很好的；晴朗的;frightened=害怕的;huge=巨大的;kind=親切的；種類;!loud=大聲的;naughty=頑皮的;pretty=漂亮的；相當;quick=快的;!quiet=安靜的;round=圓的;safe=安全的;slow=慢的;square=正方形的；廣場;strong=強壯的;surprised=驚訝的;terrible=很糟糕的;!tired=累的;weak=虛弱的;well=健康的；很好地;wrong=錯的;better=比較好的;best=最好的;worse=比較差的;worst=最差的;badly=很差地;carefully=小心地;loudly=大聲地;quickly=很快地;quietly=安靜地;slowly=慢慢地;above=在……上方;below=在……下方;along=沿著;around=在周圍；到處;inside=在裡面;outside=在外面;into=進入;near=在……附近;opposite=在……對面;top=頂端;bottom=底部;address=地址;age=年齡;another=另一個;both=兩個都;circle=圓圈;shape=形狀;everything=每樣東西;something=某樣東西;nothing=沒有東西;idea=主意;noise=噪音;machine=機器;plant=植物；種植;leaf=葉子;!moon=月亮;more=更多;most=最多；大部分;only=只有;every=每一個;than=比;why=為什麼;which=哪一個;must=必須;could=可以；能夠（過去）;shall=要不要……（提議）;will=將會;hundred=一百;thirty=三十;forty=四十;fifty=五十;sixty=六十;seventy=七十;eighty=八十;ninety=九十";
 /* ---------- training v2: recognition + weak-skill drills ---------- */
 var VOCAB=(function(){var raw=VOCAB_RAW,out=[];raw.split(";").forEach(function(e){e=e.trim();if(!e)return;var pr=e.charAt(0)==="!";if(pr)e=e.slice(1);var k=e.indexOf("=");out.push({w:e.slice(0,k),zh:e.slice(k+1),pr:pr});});return out;})();
+
+/* ---------- teacher's weekly schedule (Wordlist picture book) ---------- */
+var TSCHED=[
+ {due:[2026,11,27],topic:"玩具店",letters:"ab",words:"kangaroo roof bat rabbit panda farmer farm dolphin shark pirate clown parrot cage lion whale kitten puppy comic"},
+ {due:[2026,12,4],topic:"派對",letters:"cd",words:"message bottle glass soup bowl cup blond cheese plate grown-up grandson son parent grandparents cry daughter granddaughter hide quiet"},
+ {due:[2026,12,11],topic:"看醫生",letters:"efg",words:"stomach tooth moustache earache better hurt shoulder back headache teeth fat cough tea neck thin cold nurse plant doctor"},
+ {due:[2026,12,18],topic:"查理叔叔的旅館",letters:"hijk",words:"pool awake upstairs dry floor world lift towel blanket shower call address road downstairs wash seat map"},
+ {due:[2026,12,25],topic:"從鄉下到叢林",letters:"lmno",words:"countryside field forest grass island jungle lake mountain river rock waterfall farm tractor village sky"},
+ {due:[2027,1,1],topic:"天氣",letters:"pqrs",words:"weather cloud cloudy rain rainbow snow sunny wet dry wind windy ice hot cold"},
+ {due:[2027,1,8],topic:"我們的城鎮",letters:"tuv",words:"building café cinema circus city library market park place pool road shop station supermarket town funfair hospital ticket"},
+ {due:[2027,1,15],topic:"夢想中的假期",letters:"wxyz",words:"holiday trip travel ticket island sail swim swimsuit picnic map treasure"}
+];
+function teacherWeek(){var t=dayIdx();for(var i=0;i<TSCHED.length;i++){var d=TSCHED[i].due,di=Math.floor(Date.UTC(d[0],d[1]-1,d[2])/864e5);if(t<=di)return TSCHED[i];}return null;}
+function inWeek(w,wk){wk=wk||teacherWeek();if(!wk)return false;var lw=String(w).toLowerCase();return wk.letters.indexOf(lw.charAt(0))>=0||(" "+wk.words+" ").indexOf(" "+lw+" ")>=0;}
+function weekLabel(wk){wk=wk||teacherWeek();return wk?wk.topic+"＋"+wk.letters.toUpperCase().split("").join("、")+" 開頭的字":"";}
 function vEmoji(w){for(var i=0;i<WORDS.length;i++)if(WORDS[i][0]===w)return WORDS[i][1];return null;}
 var SPELLM=VOCAB.filter(function(v){return v.pr;}).map(function(v){return [v.w,vEmoji(v.w.toLowerCase())||v.zh,"M"];});
 function spellPool(){var seen={},out=[];SPELLM.concat(WORDS).forEach(function(w){var k=w[0].toLowerCase();if(!seen[k]){seen[k]=1;out.push(w);}});return out;}
@@ -1488,7 +1504,8 @@ function sp3(){var s=sp2();s.rec=s.rec||{};s.kinds=s.kinds||{};return s;}
 function pickRec(){
   var s=sp3(),today=dayIdx();
   var due=VOCAB.filter(function(v){var r=s.rec[v.w];return r&&r.due<=today;}).sort(function(a,b){return s.rec[a.w].box-s.rec[b.w].box;}).slice(0,8);
-  var fresh=VOCAB.filter(function(v){return !s.rec[v.w];}).slice(0,10);
+  var wk=teacherWeek(),freshAll=VOCAB.filter(function(v){return !s.rec[v.w];});
+  var fresh=freshAll.filter(function(v){return inWeek(v.w,wk)}).concat(freshAll.filter(function(v){return !inWeek(v.w,wk)})).slice(0,10);
   var list=due.concat(fresh);
   for(var i=list.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var x=list[i];list[i]=list[j];list[j]=x;}
   return list.map(function(v){
@@ -1505,7 +1522,7 @@ function renderRec(){
   var opts=q[2].map(function(o){var c="choice";if(it.ans!=null){if(o===q[1])c+=" sel";else if(o===it.ans)c+=" bad";}return '<button class="'+c+'" data-act="sp-rec" data-v="'+esc(o)+'"'+(it.ans!=null?' disabled':'')+'>'+esc(o)+'</button>';}).join("");
   app.innerHTML='<div class="topbar"><button class="btn small" data-act="home">← 首頁</button><span class="chip">魔法訓練 '+(spS.i+1)+' / '+n+'</span></div>'+
    '<div class="progress" style="margin:0 auto 16px"><i style="width:'+(spS.i/n*100)+'%"></i></div>'+
-   '<section class="card spellcard"><p class="chip">認單字 '+(it.j+1)+' / '+it.list.length+'（Movers 單字）</p>'+
+   '<section class="card spellcard"><p class="chip">認單字 '+(it.j+1)+' / '+it.list.length+(inWeek(q[0])?'　📘 本週老師進度':'（Movers 單字）')+'</p>'+
    '<div class="answord" style="font-size:44px">'+esc(q[0])+'</div>'+
    '<div class="row" style="justify-content:center"><button class="btn lav small" data-act="sp-say">🔊 聽發音</button></div>'+
    '<p class="prompt" style="text-align:center">這個字是什麼意思？</p><div class="choices" style="display:grid;gap:10px;width:100%">'+opts+'</div>'+
