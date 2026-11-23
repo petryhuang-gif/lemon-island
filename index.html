@@ -279,6 +279,10 @@ h1,h2,h3{font-family:"Baloo 2","Noto Sans TC","PingFang TC",system-ui,sans-serif
 .panels4>div{display:grid;justify-items:center;gap:4px;background:#fff;border:3px solid #f3e1f6;border-radius:16px;padding:10px 4px}
 .panels4 b{color:#ec4fa4}.panels4 .e{font-size:30px}
 @media (max-width:640px){.panels4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* mock */
+.mockban{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border:3px solid #ffb3d1}
+.mockban .e{font-size:40px}.mockban>div{flex:1;min-width:220px}
+.mbar{display:inline-block;width:110px;height:12px;border-radius:8px;background:#f0e6f6;overflow:hidden;vertical-align:middle}.mbar i{display:block;height:100%;background:linear-gradient(90deg,#ff9ac6,#a98bff)}
 /* island */
 .islandwrap{position:relative;border:5px solid #fff;border-radius:26px;overflow:hidden;box-shadow:0 10px 26px rgba(123,92,158,.28);margin-top:12px}
 .islandwrap img.bgimg{display:block;width:100%;height:auto}
@@ -1207,7 +1211,7 @@ function recordsPanelHTML(){
 }
 function renderOtherReport(other){
   var mine=state;state=other;var html;
-  try{html=recordsPanelHTML()+spellParentHTML();}finally{state=mine;}
+  try{html=recordsPanelHTML()+mockParentHTML()+spellParentHTML();}finally{state=mine;}
   app.innerHTML='<div class="topbar"><button class="btn small" data-act="parent">← 回家長區</button><span class="chip">別台裝置的紀錄（只供查看）</span></div>'+
    '<p class="note">這是從備份碼讀出來的報表，不會改到這台裝置的進度。</p>'+
    '<div style="display:grid;gap:16px">'+html+'</div>';
@@ -1222,6 +1226,7 @@ function renderParent(){
   app.innerHTML='<div class="topbar"><button class="btn small" data-act="home">← 首頁</button><span class="chip">家長區</span></div>'+
    '<div style="display:grid;gap:16px">'+
    recordsPanelHTML()+
+   mockParentHTML()+
    shopParentHTML()+
    '<section class="panel"><h2>今天的任務</h2><p class="muted" style="margin:0">每天固定：魔法訓練＋3 關（1 關弱點題＋2 關一般題）。做完就休息。表現好、還想玩，可以多開 1 關。</p>'+
      '<p style="margin:0">今天：'+missionToday().ids.map(function(id){var r=findTask(id);return esc(r.t.title)+(missionToday().done[id]?' ✓':'');}).join('、')+'</p>'+
@@ -1306,6 +1311,74 @@ function startSpell(){
   spS={items:items,i:0,tries:0,mode:"ask",res:[],typed:""};
   renderSpellItem();
 }
+/* ---------- weekly mini mock (週六小測驗) ---------- */
+function spLabel(){return spS&&spS.mock?"📝 小測驗 ":"魔法訓練 ";}
+function dow(){return (dayIdx()+4)%7;}
+function weekKey(){return Math.floor((dayIdx()+3)/7);}
+function mocks(){if(!state.mocks)state.mocks=[];return state.mocks;}
+function mockThisWeek(){var k=weekKey();return mocks().filter(function(m){return m.wk===k;})[0]||null;}
+function mockDue(){var d=dow();return (d===6||d===0)&&!mockThisWeek();}
+function startMock(){
+  cur=null;stopSpeak();
+  var items=[];
+  items.push(makePos());
+  items.push({k:"dialog",d:pickLeast(DIALOGS,"dlg")});
+  pickNames(1).forEach(function(nm){items.push({k:"name",a:nm});});
+  var pool=SPELLM.slice().sort(function(){return Math.random()-0.5;}).slice(0,4);
+  pool.forEach(function(w){items.push({k:"word",a:w[0],e:w[1],lv:"M"});});
+  items.push(makeDef());
+  items.push({k:"read",r:pickRead()});
+  items.push({k:"pic",p:pickLeast(PICS,"pic")});
+  spS={mock:true,items:items,i:0,tries:0,mode:"ask",res:[],typed:""};
+  renderSpellItem();
+}
+function mockSec(k){return (k==="pos"||k==="dialog"||k==="name")?"L":(k==="word"?"SP":"RW");}
+function mockPush(it,ok,label,ans,typed){spS.res.push({sec:mockSec(it.k),ok:!!ok,q:label||"",ans:ans||"",typed:typed||""});}
+function mockNext(){spS.busy=true;var card=document.querySelector(".spellcard");if(card){var d=document.createElement("div");d.className="praise";d.textContent="✓ 寫好了，下一題";card.appendChild(d);}document.querySelectorAll(".spellcard input,.spellcard textarea,.spellcard button").forEach(function(b){b.disabled=true;});setTimeout(function(){if(spS){spS.busy=false;nextSpell();}},500);}
+function pct(a){return a[1]?Math.round(a[0]/a[1]*100):0;}
+function finishMock(){
+  setBg("stage");
+  var r=spS.res;function c(k){var a=r.filter(function(x){return x.sec===k});return [a.filter(function(x){return x.ok}).length,a.length];}
+  var L=c("L"),RW=c("RW"),SP=c("SP");
+  var first=!mockThisWeek(),prev=mocks().length?mocks()[mocks().length-1]:null;
+  var miss=r.filter(function(x){return !x.ok}).map(function(x){return {sec:x.sec,q:x.q,ans:x.ans,typed:x.typed};});
+  mocks().push({at:nowISO(),wk:weekKey(),L:L,RW:RW,SP:SP,miss:miss.slice(0,20),extra:!first});
+  if(mocks().length>30)state.mocks=mocks().slice(-30);
+  var gain=first?10:0;addEnergy(gain);save();
+  function row(name,a,key){var d=prev?pct(a)-pct(prev[key]):null;return '<tr><td>'+name+'</td><td>'+a[0]+' / '+a[1]+'</td><td><span class="mbar"><i style="width:'+pct(a)+'%"></i></span></td><td>'+(d===null?'—':(d>0?'↑ '+d+'%':(d<0?'↓ '+(-d)+'%':'一樣')))+'</td></tr>';}
+  app.innerHTML='<div class="topbar"><button class="btn small" data-act="home">← 首頁</button></div>'+
+   '<section class="end"><div class="win" style="width:min(560px,100%)"><img class="winimg" src="img/lemon_jump.webp" alt="檸檬開心地跳起來">'+
+   '<h2 style="font-size:30px">小測驗寫完了！</h2>'+
+   '<p class="muted" style="margin:0">這是看看自己這週進步多少，不是比賽。</p>'+
+   '<div class="tablewrap"><table><thead><tr><th>部分</th><th>答對</th><th></th><th>跟上次比</th></tr></thead><tbody>'+row("聽力",L,"L")+row("讀寫",RW,"RW")+row("拼字",SP,"SP")+'</tbody></table></div>'+
+   (gain?'<p class="chip" style="font-size:18px">得到 ⚡ '+gain+' 魔法能量！</p>':'<p class="muted" style="margin:0">這週已經做過一次，這次不加能量。</p>')+
+   '<p class="muted" style="margin:0">錯的題目爸媽可以在家長區看到，拼錯的字雲朵會在魔法訓練裡多練。</p>'+
+   '<div class="row" style="justify-content:center"><button class="btn main" data-act="home">回首頁</button></div></div></section>';
+  if(hasTTS)speak("Well done, Lemon!");
+}
+function mockBanner(){
+  if(!mockDue())return "";
+  return '<div class="panel mockban"><span class="e" aria-hidden="true">📝</span><div><b>週末小測驗開放了！</b><p class="muted" style="margin:0">聽力、拼字、讀寫一起考，約 10 分鐘。沒有提示，對話只能聽兩次，跟真的考試一樣。寫完得到 ⚡10。</p></div><button class="btn main" data-act="mock-start">開始小測驗</button></div>';
+}
+function mockParentHTML(){
+  var ms=mocks(),secs=[["L","聽力"],["RW","讀寫"],["SP","拼字"]];
+  var fmt=function(x){var d=new Date(x);return (d.getMonth()+1)+"/"+d.getDate();};
+  var rows=ms.slice().reverse().map(function(m){return '<tr><td>'+fmt(m.at)+(m.extra?'（加考）':'')+'</td>'+secs.map(function(s){return '<td>'+m[s[0]][0]+'/'+m[s[0]][1]+'　<b>'+pct(m[s[0]])+'%</b></td>';}).join("")+'</tr>';}).join("");
+  var chart="";
+  if(ms.length){var W=520,H=170,pad=28,n=ms.length,cols={L:"#7b6cf6",RW:"#ff7eb3",SP:"#f5a623"};
+    var x=function(i){return n===1?W/2:pad+i*(W-pad*2)/(n-1);},y=function(v){return H-22-v*(H-40)/100;};
+    chart='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;max-width:560px" role="img" aria-label="小測驗分數走勢">'+
+      [0,50,100].map(function(v){return '<line x1="'+pad+'" x2="'+(W-pad)+'" y1="'+y(v)+'" y2="'+y(v)+'" stroke="#e6dcef"/><text x="2" y="'+(y(v)+4)+'" font-size="11" fill="#8a7a99">'+v+'%</text>';}).join("")+
+      secs.map(function(s){var pts=ms.map(function(m,i){return x(i)+","+y(pct(m[s[0]]));});return (n>1?'<polyline fill="none" stroke="'+cols[s[0]]+'" stroke-width="3" points="'+pts.join(" ")+'"/>':'')+ms.map(function(m,i){return '<circle cx="'+x(i)+'" cy="'+y(pct(m[s[0]]))+'" r="4.5" fill="'+cols[s[0]]+'"/>';}).join("");}).join("")+
+      ms.map(function(m,i){return '<text x="'+x(i)+'" y="'+(H-4)+'" font-size="11" text-anchor="middle" fill="#8a7a99">'+fmt(m.at)+'</text>';}).join("")+'</svg>'+
+      '<p class="muted" style="margin:0"><span style="color:#7b6cf6">●</span> 聽力　<span style="color:#ff7eb3">●</span> 讀寫　<span style="color:#f5a623">●</span> 拼字</p>';}
+  var last=ms.length?ms[ms.length-1]:null,secName={L:"聽力",RW:"讀寫",SP:"拼字"};
+  var missH=last&&last.miss&&last.miss.length?'<p style="margin:0"><b>最近一次錯的題目：</b></p><ul style="margin:0;padding-left:20px">'+last.miss.map(function(x){return '<li>'+secName[x.sec]+'｜'+esc(x.q)+(x.ans?'　正確：<b>'+esc(x.ans)+'</b>':'')+(x.typed?'　她寫：'+esc(x.typed):'')+'</li>';}).join("")+'</ul>':'';
+  return '<section class="panel"><h2>週末小測驗</h2>'+
+    '<p class="muted" style="margin:0">每週六、日首頁會出現一次小測驗（約 10 分鐘，沒有提示）。聽力＝聽位置選圖 3 題＋聽對話填資訊＋聽名字拼法；拼字＝聽寫 4 個 Movers 單字；讀寫＝看說明寫單字 3 題＋讀短文 3 題＋看圖寫字 2 題。題目每次重新抽，所以分數會有上下起伏，看 3 次以上的趨勢比較準。百分比不能直接換成劍橋盾牌數。</p>'+
+    (ms.length?chart+'<div class="tablewrap"><table><thead><tr><th>日期</th><th>聽力</th><th>讀寫</th><th>拼字</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+missH:'<p style="margin:0">還沒有做過小測驗。</p>')+
+    '<div class="row"><button class="btn small lav" data-act="mock-start">現在讓她做一次小測驗</button><span class="muted">（同一週第二次起不加能量）</span></div></section>';
+}
 function diffTiles(typed,ans){
   var h="",t=typed.toLowerCase(),a=ans.toLowerCase();
   for(var i=0;i<Math.max(t.length,a.length);i++){
@@ -1327,14 +1400,14 @@ function renderSpellItem(){
   var fb="";
   if(spS.mode==="retry")fb=diffTiles(spS.typed,it.a)+'<img class="thinkimg" src="img/lemon_think.webp" alt=""><p class="fb bad">綠色的字母對了，紅色的再想想。再聽一次，再寫一次！</p>';
   if(spS.mode==="copy")fb=diffTiles(spS.typed,it.a)+'<div class="model"><span class="muted" style="font-size:13px;display:block">正確拼法</span><span class="answord">'+esc(it.k==="name"?it.a:it.a)+'</span></div><p class="fb">看著正確拼法，自己打一次。</p>';
-  app.innerHTML='<div class="topbar"><button class="btn small" data-act="home">← 首頁</button><span class="chip">魔法訓練 '+(spS.i+1)+' / '+n+'</span></div>'+
+  app.innerHTML='<div class="topbar"><button class="btn small" data-act="home">← 首頁</button><span class="chip">'+spLabel()+(spS.i+1)+' / '+n+'</span></div>'+
    '<div class="progress" style="margin:0 auto 16px"><i style="width:'+(spS.i/n*100)+'%"></i></div>'+
    '<section class="card spellcard"><p class="chip">'+label+'</p>'+pic+
    '<p class="prompt" style="text-align:center">'+prompt+'</p>'+
    '<div class="row" style="justify-content:center"><button class="btn lav" data-act="sp-say">🔊 '+(hasTTS?"再聽一次":"請家長唸")+'</button>'+(hasTTS?speedBtn():'')+'</div>'+
    '<form class="spellform" data-form="sp"><input id="spin" type="text" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" enterkeyhint="done" maxlength="'+(it.k==="letter"?1:20)+'" aria-label="在這裡寫答案"><button class="btn main" type="submit">送出</button></form>'+
    fb+
-   '<details class="peek"><summary>家長看答案</summary><p>'+esc(spSay(it))+'</p></details>'+
+   (spS.mock&&hasTTS?'':'<details class="peek"><summary>家長看答案</summary><p>'+esc(spSay(it))+'</p></details>')+
    '</section>';
   var inp=document.getElementById("spin");if(inp){try{inp.focus();}catch(e){}}
   if(hasTTS&&spS.mode==="ask")setTimeout(function(){sayItem(it)},250);
@@ -1365,6 +1438,7 @@ function submitSpell(){
   var v=norm(inp&&inp.value).replace(/\s+/g,"");
   if(!v){return;}
   var ok=v===it.a.toLowerCase();
+  if(spS.mock){mockPush(it,ok,{letter:"聽字母",word:"聽寫單字",name:"聽名字拼法"}[it.k],it.a,ok?"":v);if(!ok)recordSpell(it,false,v);mockNext();return;}
   if(spS.mode==="copy"){
     if(ok){nextSpell();}else{spS.typed=v;renderSpellItem();}
     return;
@@ -1385,6 +1459,7 @@ function nextSpell(){
   renderSpellItem();
 }
 function finishSpell(){
+  if(spS.mock){finishMock();return;}
   setBg("stage");
   var s=sp(),r=spS.res;
   function c(k){var a=r.filter(function(x){return x.k===k});return [a.filter(function(x){return x.ok}).length,a.length];}
@@ -1429,6 +1504,7 @@ app.addEventListener("click",function(e){
   var el=e.target.closest("[data-act]");if(!el)return;
   var act=el.getAttribute("data-act");
   if(act==="sp-start")startSpell();
+  else if(act==="mock-start")startMock();
   else if(act==="sp-say"&&spS){var it=spS.items[spS.i];if(hasTTS){if(it.k==="dialog"){spS.dplays=(spS.dplays||0)+1;if(spS.dplays>2&&spS.mode!=="show"){setFB2("對話只能聽兩次喔（跟考試一樣）！");return;}playDialog(it);}else if(it.k==="pos"){sayPos(it);}else if(it.k==="rec"){speak(it.list[it.j][0]);}else sayItem(it);}else{var d=document.querySelector(".peek");if(d)d.open=true;}}
 });
 app.addEventListener("submit",function(e){if(e.target.getAttribute("data-form")==="sp"){e.preventDefault();submitSpell();}});
@@ -1520,7 +1596,7 @@ function renderRec(){
   setBg("library");
   var it=spS.items[spS.i],n=spS.items.length,q=it.list[it.j];
   var opts=q[2].map(function(o){var c="choice";if(it.ans!=null){if(o===q[1])c+=" sel";else if(o===it.ans)c+=" bad";}return '<button class="'+c+'" data-act="sp-rec" data-v="'+esc(o)+'"'+(it.ans!=null?' disabled':'')+'>'+esc(o)+'</button>';}).join("");
-  app.innerHTML='<div class="topbar"><button class="btn small" data-act="home">← 首頁</button><span class="chip">魔法訓練 '+(spS.i+1)+' / '+n+'</span></div>'+
+  app.innerHTML='<div class="topbar"><button class="btn small" data-act="home">← 首頁</button><span class="chip">'+spLabel()+(spS.i+1)+' / '+n+'</span></div>'+
    '<div class="progress" style="margin:0 auto 16px"><i style="width:'+(spS.i/n*100)+'%"></i></div>'+
    '<section class="card spellcard"><p class="chip">認單字 '+(it.j+1)+' / '+it.list.length+(inWeek(q[0])?'　📘 本週老師進度':'（Movers 單字）')+'</p>'+
    '<div class="answord" style="font-size:44px">'+esc(q[0])+'</div>'+
@@ -1601,7 +1677,7 @@ function renderPos(){
   setBg("library");
   var it=spS.items[spS.i],n=spS.items.length,q=it.qs[it.j];
   var opts=q.opts.map(function(o,k){var c="opt";if(it.ans!=null){if(o===q.ans)c+=" okk";else if(o===it.ans)c+=" nope";}return '<button class="'+c+'" data-act="sp-pos" data-v="'+o+'" style="padding:6px;min-height:0" aria-label="圖 '+(k+1)+'">'+posScene(q.th,q.rf,o)+'</button>';}).join("");
-  app.innerHTML='<div class="topbar"><button class="btn small" data-act="home">← 首頁</button><span class="chip">魔法訓練 '+(spS.i+1)+' / '+n+'</span></div>'+
+  app.innerHTML='<div class="topbar"><button class="btn small" data-act="home">← 首頁</button><span class="chip">'+spLabel()+(spS.i+1)+' / '+n+'</span></div>'+
    '<div class="progress" style="margin:0 auto 16px"><i style="width:'+(spS.i/n*100)+'%"></i></div>'+
    '<section class="card spellcard"><p class="chip">聽位置，選圖（'+(it.j+1)+' / '+it.qs.length+'）</p><p class="prompt" style="text-align:center">Listen and choose the right picture.</p>'+
    '<div class="row" style="justify-content:center"><button class="btn lav" data-act="sp-say">🔊 再聽一次</button>'+(hasTTS?speedBtn():'')+'</div>'+
@@ -1610,7 +1686,9 @@ function renderPos(){
    '<details class="peek"><summary>家長看原文</summary><p>'+esc(q.sent)+'</p></details></section>';
   if(hasTTS&&it.ans==null&&!it.played){it.played=true;it.plays=1;setTimeout(function(){speak(q.sent)},300);}
 }
-function posPick(v){var it=spS.items[spS.i],q=it.qs[it.j];if(it.ans!=null)return;it.ans=v;var ok=v===q.ans;spS.res.push({k:"pos",a:q.sent,ok:ok});renderPos();if(ok){if(hasTTS)speak("Great!");setTimeout(posNext,700);}}
+function posPick(v){var it=spS.items[spS.i],q=it.qs[it.j];if(it.ans!=null)return;
+  if(spS.mock){it.ans=v;mockPush(it,v===q.ans,"聽位置選圖："+q.sent,"","");it.ans=null;it.played=false;it.plays=0;it.j++;if(it.j>=it.qs.length)mockNext();else renderPos();return;}
+  it.ans=v;var ok=v===q.ans;spS.res.push({k:"pos",a:q.sent,ok:ok});renderPos();if(ok){if(hasTTS)speak("Great!");setTimeout(posNext,700);}}
 function posNext(){var it=spS.items[spS.i];if(!it||it.k!=="pos")return;if(it.j===it.qs.length-1&&!it.counted){it.counted=1;var s3=sp3();s3.kinds.pos=(s3.kinds.pos||0)+1;}it.ans=null;it.played=false;it.plays=0;it.j++;if(it.j>=it.qs.length)nextSpell();else renderPos();}
 function makeDef(){
   var pool=DEFS.slice().sort(function(){return Math.random()-0.5;});var qs=pool.slice(0,3),dis=pool.slice(3,6);
@@ -1675,7 +1753,7 @@ function renderBig(){
       '<div class="row" style="justify-content:center"><button class="btn main" data-act="sp-next">知道了，下一題</button></div>';
   }
   var showSubmit=spS.mode!=="show"&&spS.stage!=="rate";
-  app.innerHTML='<div class="topbar"><button class="btn small" data-act="home">← 首頁</button><span class="chip">魔法訓練 '+(spS.i+1)+' / '+n+'</span></div>'+
+  app.innerHTML='<div class="topbar"><button class="btn small" data-act="home">← 首頁</button><span class="chip">'+spLabel()+(spS.i+1)+' / '+n+'</span></div>'+
    '<div class="progress" style="margin:0 auto 16px"><i style="width:'+(spS.i/n*100)+'%"></i></div>'+
    '<section class="card spellcard">'+head+
    '<form class="bigform" data-form="sp" style="display:grid;gap:12px;width:100%;text-align:left">'+body+
@@ -1703,6 +1781,11 @@ function submitBig(){
   else if(it.k==="read"){READS[it.r].q.forEach(function(q,k){var ok=q[2].indexOf(norm(vals[k]))>=0;marks[k]=ok;if(!ok)all=false;});}
   else if(it.k==="def"){it.qs.forEach(function(q,k){var v=norm(vals[k]),a=q[1].toLowerCase(),ok=v===a||v===a.replace(/^(a|an) /,"");marks[k]=ok;if(!ok)all=false;});}
   else{var p=it.p;marks[0]=p.q1.accept.indexOf(norm(vals[0]))>=0;var a=norm(vals[1]);marks[1]=p.q2.need.every(function(re){return re.test(a)});all=marks[0]&&marks[1];}
+  if(spS.mock){
+    var lab=it.k==="dialog"?it.d.fields.map(function(f){return ["聽對話："+f.label,f.accept[0]];}):(it.k==="read"?READS[it.r].q.map(function(q){return ["讀短文："+q[0]+" ___ "+q[1],q[2][0]];}):(it.k==="def"?it.qs.map(function(q){return ["看說明："+q[0],q[1]];}):[["看圖："+it.p.q1.before+" ___ "+it.p.q1.after,it.p.q1.accept[0]],["看圖："+it.p.q2.q,it.p.q2.model]]));
+    marks.forEach(function(m,k){mockPush(it,m,lab[k][0],lab[k][1],m?"":vals[k]);});
+    mockNext();return;
+  }
   spS.marks=marks;spS.keep=keep;
   if(all){
     if(spS.tries===0)spS.firstOK=true;
@@ -1914,7 +1997,7 @@ function renderHome(){
    '<div class="stars5" aria-label="找回的守護星">'+[0,1,2,3,4].map(function(i){var lit=i<CHAPTERS.length&&chapDone(i);return starImg(lit,"staricon",STARCOL[i].c);}).join("")+'</div>'+
    (state.bigPrize?'<div class="bigprize">🏆 找回五顆守護星，就能得到：<b>'+esc(state.bigPrize)+'</b></div>':'')+
    '<div class="stats"><span class="chip">⭐ 守護星 '+CHAPTERS.filter(function(c,i){return i<5&&chapDone(i)}).length+' / 5</span><span class="chip">📍 已過關 '+dn+' / '+tot+'</span><span class="chip">⚡ 魔法能量 '+(state.energy||0)+'</span></div></div>'+
-   todayHTML()+islandHTML()+
+   mockBanner()+todayHTML()+islandHTML()+
    (hasTTS?'':'<p class="note">這台裝置不能朗讀英文。聽力任務請家長點「家長看原文」唸給她聽。</p>')+
    '<p class="foot">🌸 Cambridge A1 Movers 練習遊戲 · 原創練習題，不是劍橋官方試題 · 用字已對照劍橋官方 Starters / Movers 單字表<br><button class="parentlink" data-act="parent">家長區</button></p>'+
   '</section>';

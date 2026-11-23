@@ -12,7 +12,7 @@ Cambridge A1 Movers 練習遊戲（iPad Safari／主畫面 App）。考試日 20
 | `img/` | GPT 生成的圖：場景、角色、衣服（o_*.webp，已去背）、首頁背景（bg_*.jpg） |
 | `tools/check.js` + `wordlist.json` | 用字檢查：`node tools/check.js index.html tools/wordlist.json`，必須 0 處超出 Movers |
 | `tools/t41.js` | 全關卡自動過關測試（Playwright）：`node tools/t41.js`，必須 fails 0、errors [] |
-| `tools/t40.js` / `t42.js` | 每日任務流程、衣櫥／圖鑑解鎖測試 |
+| `tools/t40.js` / `t42.js` / `t43.js` | 每日任務流程、衣櫥／圖鑑解鎖、週末小測驗測試 |
 | `tools/movers_vocab.txt` | 認單字題庫來源（336 字，`!` 開頭＝拼字優先 156 字） |
 | `notes/Movers單字表_抽查用.csv` | 給家長抽查中文意思的單字表 |
 
@@ -28,6 +28,7 @@ Cambridge A1 Movers 練習遊戲（iPad Safari／主畫面 App）。考試日 20
 - **獎勵商店**：14 項，附說明（`DEFAULT_REWARDS`，`state.rw3` 一次性遷移）。
 - **衣櫥**：章節解鎖 lav/sky；訓練 10 天 starry；拼熟 50 字 gold；圖鑑 100/200/336 字 book/rainbow/queen；首頁背景：完成任務 7/14/21 天 sweets/park/sea。
 - **單字圖鑑**：認單字答對一次即收集。
+- **週末小測驗**：每週六、日首頁出現一次（`mockBanner`），約 10 分鐘、無提示、一次作答：聽力（位置選圖 3＋對話填資訊＋名字拼法）、拼字（聽寫 4 個 Movers 優先字）、讀寫（看說明 3＋短文 3＋看圖 2）。結果存 `state.mocks`（含錯題），首次 ⚡10、同週加考 0。家長區有走勢圖與錯題，別台裝置報表也看得到。測試：`tools/t43.js`。
 - **老師週進度同步**：`TSCHED`（11/27–1/15，每週主題＋字母段），認單字與拼字的新字優先出本週字。
 - 注音輸入偵測：偵測到非英文字元時提示切換鍵盤，不算錯。
 - 測試掛鉤：網址加 `#test` 會開 `window.__LI`。
@@ -37,7 +38,6 @@ Cambridge A1 Movers 練習遊戲（iPad Safari／主畫面 App）。考試日 20
 - 題目一律自寫，不放出版社教材內容。
 
 ## 待辦（依序）
-2. 每週六小模考＋家長區成績走勢表
 3. 口說錄音、家長晚上聽並評分（IndexedDB）
 4. 12/13（六）用官方 Sample Papers Vol.1 做一次完整紙本模考（家長已同意；先問老師課堂是否會用）
 5. 特訓營第二批新題目（約 12 月中）
