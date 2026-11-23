@@ -1217,6 +1217,19 @@ function renderOtherReport(other){
    '<div style="display:grid;gap:16px">'+html+'</div>';
   window.scrollTo(0,0);
 }
+/* ---------- parent PIN gate ---------- */
+var PIN_CHECK=3671126616,parentOK=/test/.test(location.hash);
+function h32(str,seed){var h=seed>>>0;for(var i=0;i<str.length;i++){h=Math.imul(h^str.charCodeAt(i),2654435761);h=(h<<13)|(h>>>19);}return (h^(h>>>16))>>>0;}
+function renderPinGate(msg){
+  setBg(null);stopSpeak();cur=null;spS=null;
+  app.innerHTML='<div class="topbar"><button class="btn small" data-act="home">← 首頁</button><span class="chip">家長區</span></div>'+
+   '<section class="panel" style="max-width:420px;margin:30px auto;text-align:center"><h2>🔒 家長區</h2><p class="muted" style="margin:0">請爸爸媽媽輸入 4 位數密碼。</p>'+
+   '<form data-form="pin" style="display:grid;gap:12px;justify-items:center"><input id="pinin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" style="font-size:30px;width:150px;text-align:center;letter-spacing:10px;padding:8px;border-radius:14px;border:3px solid var(--line)"><button class="btn main" type="submit">打開</button></form>'+
+   (msg?'<p class="fb bad">'+esc(msg)+'</p>':'')+'</section>';
+  var i=document.getElementById("pinin");if(i){try{i.focus();}catch(e){}}
+}
+function checkPin(){var i=document.getElementById("pinin"),v=(i&&i.value||"").trim();if(h32("lemon-pin:"+v,11)===PIN_CHECK){parentOK=true;renderParent();}else renderPinGate("密碼不對，再試一次。");}
+app.addEventListener("submit",function(e){if(e.target.getAttribute("data-form")==="pin"){e.preventDefault();checkPin();}});
 function renderParent(){
   if(typeof cancelArm==='undefined')cancelArm=null;
   setBg(null);
@@ -2249,9 +2262,10 @@ app.addEventListener("click",function(e){
   if(act==="voicetest"){speak("Hello, Lemon. My name's Mrs Bell. That's B, E, L, L.");return;}
   if(act==="voicereload"){voice=null;pickVoice();renderParent();return;}
   if(act==="speed"){state.speed=((state.speed||0)+1)%SPEEDS.length;save();document.querySelectorAll('[data-act="speed"]').forEach(function(b){b.textContent=spd().label;});speak("Hello, Lemon. Listen carefully.");return;}
-  if(act==="home"){spS=null;cur=null;if(hasTTS)stopSpeak();renderHome();return;}
+  if(act==="home"){spS=null;cur=null;parentOK=/test/.test(location.hash);if(hasTTS)stopSpeak();renderHome();return;}
   if(act==="map"){if(hasTTS)stopSpeak();spS=null;renderMap();return;}
-  if(act==="parent"){renderParent();return;}
+  if(act==="parent"){if(parentOK)renderParent();else renderPinGate();return;}
+  if(act==="pin-ok"){checkPin();return;}
   if(act==="end"){renderEnd();return;}
   if(act==="shop"){stopSpeak();cur=null;spS=null;pendingRw=null;renderShop();return;}
   if(act==="rw"){rwClick(el.getAttribute("data-id"));return;}

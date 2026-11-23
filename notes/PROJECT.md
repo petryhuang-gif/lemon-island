@@ -14,6 +14,8 @@ Cambridge A1 Movers 練習遊戲（iPad Safari／主畫面 App）。考試日 20
 | `tools/t41.js` | 全關卡自動過關測試（Playwright）：`node tools/t41.js`，必須 fails 0、errors [] |
 | `tools/t40.js` / `t42.js` / `t43.js` | 每日任務流程、衣櫥／圖鑑解鎖、週末小測驗測試 |
 | `tools/movers_vocab.txt` | 認單字題庫來源（336 字，`!` 開頭＝拼字優先 156 字） |
+| `questions.html` | 給老師的「題目總覽」（全部題目＋答案＋單字表），內容用家長密碼加密，遊戲裡沒有連結。**改了題目一定要重跑** `node tools/build-questions.js <密碼>` 再上傳 |
+| `tools/build-questions.js` / `tq.js` / `t44.js` | 產生題目總覽／總覽頁測試／家長區密碼測試（密碼當參數傳，不寫進 repo） |
 | `notes/Movers單字表_抽查用.csv` | 給家長抽查中文意思的單字表 |
 
 ## 遊戲結構
@@ -30,6 +32,7 @@ Cambridge A1 Movers 練習遊戲（iPad Safari／主畫面 App）。考試日 20
 - **單字圖鑑**：認單字答對一次即收集。
 - **週末小測驗**：每週六、日首頁出現一次（`mockBanner`），約 10 分鐘、無提示、一次作答：聽力（位置選圖 3＋對話填資訊＋名字拼法）、拼字（聽寫 4 個 Movers 優先字）、讀寫（看說明 3＋短文 3＋看圖 2）。結果存 `state.mocks`（含錯題），首次 ⚡10、同週加考 0。家長區有走勢圖與錯題，別台裝置報表也看得到。測試：`tools/t43.js`。
 - **老師週進度同步**：`TSCHED`（11/27–1/15，每週主題＋字母段），認單字與拼字的新字優先出本週字。
+- **家長區密碼**：4 位數，`PIN_CHECK` 只存雜湊；同一組密碼解開 questions.html。回首頁就重新上鎖；`#test` 模式自動解鎖。「備份紀錄」按鈕不鎖。
 - 注音輸入偵測：偵測到非英文字元時提示切換鍵盤，不算錯。
 - 測試掛鉤：網址加 `#test` 會開 `window.__LI`。
 
