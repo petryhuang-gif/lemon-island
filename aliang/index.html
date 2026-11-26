@@ -117,7 +117,7 @@ button:focus-visible{outline:4px solid var(--yel);outline-offset:3px}
     </div>
     <svg class="rocket" id="rocketHome" viewBox="0 0 120 200" aria-hidden="true"></svg>
   </div>
-  <div class="quiz"><div><b class="zh">本週小考</b> <select id="qwk" aria-label="本週小考週次"></select> <select id="qday" aria-label="星期幾的小考"></select><div class="zh" style="font-size:15px;opacity:.85">每週由爸媽改週次・星期會自動對到今天</div></div><div class="qbtn"><button class="big" id="goQuiz">小考特訓</button><button class="big alt2" id="goFinal">期末總複習</button></div></div>
+  <div class="quiz"><div><b class="zh">本週小考</b> <select id="qwk" aria-label="本週小考週次"></select> <select id="qday" aria-label="星期幾的小考"></select><div class="zh" style="font-size:15px;opacity:.85">每週由爸媽改週次・星期會自動對到今天</div></div><div class="qbtn"><button class="big" id="goQuiz">小考特訓</button><button class="big alt2" id="goFinal">期末總複習 W9–16</button></div></div>
   <div class="top" style="margin-top:14px"><span class="pill" id="totalSt"></span><span class="pill">選一顆星球出發</span></div>
   <div class="planets" id="planets"></div>
 </section>
@@ -168,6 +168,7 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
 const words=wk=>DATA[wk].map(([en,zh,img,d])=>({en,zh,img,d:d||''}));
+const FINAL=WEEKS.filter(w=>w<=16);
 const DAYN=['','一','二','三','四','五'];
 let QDAY=(()=>{const g=new Date().getDay();return g>=1&&g<=5?g:1})();
 const say=t=>{try{const sp=speechSynthesis;sp.cancel();const u=new SpeechSynthesisUtterance(t.replace(/-/g,' , '));u.lang='en-US';u.rate=.8;const v=sp.getVoices().find(v=>/en[-_]US/.test(v.lang)&&/Samantha|Google|Aaron|Nicky/.test(v.name))||sp.getVoices().find(v=>/en[-_]US/.test(v.lang));if(v)u.voice=v;sp.speak(u)}catch(e){}};
@@ -208,10 +209,10 @@ let G=null;
 const toast=(w,ms=1300)=>{$('tEn').textContent=w.en;$('tZh').textContent=w.zh;$('toast').classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>$('toast').classList.remove('on'),ms)};
 const fillOK=w=>{const n=w.en.replace(/[^a-z]/gi,'').length;return n>=3&&n<=12};
 const weak=w=>(S.wr[w.en]||0)*2-(S.wc[w.en]||0)+Math.random()*1.5;
-function startSpecial(sp){cur.special=sp;const src=sp==='quiz'?words(S.qwk).filter(w=>w.d.includes(QDAY)):WEEKS.flatMap(words);
+function startSpecial(sp){cur.special=sp;const src=sp==='quiz'?words(S.qwk).filter(w=>w.d.includes(QDAY)):FINAL.flatMap(words);
   const ws=sp==='quiz'?src.filter(w=>w.en.replace(/[^a-z]/gi,'').length>=2):src.filter(fillOK);const seen=new Set();const pool=ws.filter(w=>!seen.has(w.en)&&seen.add(w.en));
   G={mode:'fill',ws:pool,miss:0,i:0,res:[],lock:false};G.q=sp==='quiz'?shuf(pool):pool.slice().sort((a,b)=>weak(b)-weak(a)).slice(0,10);G.n=G.q.length;
-  $('playName').textContent=sp==='quiz'?`小考 W${S.qwk} 星期${DAYN[QDAY]}`:'期末總複習';cur.mode='fill';go('play');fill()}
+  $('playName').textContent=sp==='quiz'?`小考 W${S.qwk} 星期${DAYN[QDAY]}`:'期末總複習 W9–16';cur.mode='fill';go('play');fill()}
 function start(mode){
   cur.mode=mode;cur.special=null;const ws=words(cur.wk).filter(w=>w.img);
   const m=MODES.find(x=>x.id===mode);$('playName').textContent=m.name;

@@ -17,7 +17,7 @@ Cambridge A1 Movers 練習遊戲（iPad Safari／主畫面 App）。考試日 20
 | `questions.html` | 給老師的「題目總覽」（全部題目＋答案＋單字表），內容用家長密碼加密，遊戲裡沒有連結。**改了題目一定要重跑** `node tools/build-questions.js <密碼>` 再上傳 |
 | `tools/build-questions.js` / `tq.js` / `t44.js` | 產生題目總覽／總覽頁測試／家長區密碼測試（密碼當參數傳，不寫進 repo） |
 | `notes/Movers單字表_抽查用.csv` | 給家長抽查中文意思的單字表 |
-| `aliang/index.html` | 阿兩的單字火箭（Onyx 班 Quizlet Week 9–20 單字，聽音找圖／翻牌配對／打怪獸／補字母）。圖片直接連 Quizlet，星星存 localStorage `aliang-rocket-v1`。首頁有「本週小考」週次（家長每週改）＋星期（自動對今天）→「今天的小考」只出該週該天的字（每日分組依單字本照片，存在資料第 4 欄 days），期末總複習（補字母，常錯先出） |
+| `aliang/index.html` | 阿兩的單字火箭（Onyx 班 Quizlet Week 9–20 單字，聽音找圖／翻牌配對／打怪獸／補字母）。圖片直接連 Quizlet，星星存 localStorage `aliang-rocket-v1`。首頁有「本週小考」週次（家長每週改）＋星期（自動對今天）→「今天的小考」只出該週該天的字（每日分組依單字本照片，存在資料第 4 欄 days），期末總複習（Week 9–16，依單字本「Week 18 Final Exam」；補字母，常錯先出） |
 | `school/index.html` | 檸檬的學校單字小考練習（Pelican 班 Quizlet Week 9–20，拼整個字）。小考特訓／期末總複習／單字卡；紀錄 `lemon-school-v1`；能量直接加進冒險島 state（同一天最多 ⚡6）。冒險島首頁有入口卡（`schoolBanner`），並在 pageshow 從 bfcache 回來時重新載入避免蓋掉能量 |
 
 ## 遊戲結構
