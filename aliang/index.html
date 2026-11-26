@@ -84,6 +84,11 @@ button:focus-visible{outline:4px solid var(--yel);outline-offset:3px}
 .opt .sp{width:48px;height:48px;border-radius:50%;background:#ffffff22;display:grid;place-items:center;flex:none}
 .opt.sel{background:#2d3f9c;outline:4px solid var(--yel)}
 .opt.ok{background:var(--grn);color:#08331a}.opt.bad{animation:shake .4s;opacity:.4}
+.fw{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;font:800 clamp(34px,7vw,54px)/1 "Baloo 2"}
+.lt{min-width:.62em;text-align:center}.lt.hole{color:var(--yel)}.lt.cur{border-bottom:5px solid var(--yel)}.lt.fil{color:var(--grn)}.gap{width:.5em}
+.keys{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:10px;max-width:620px;margin:0 auto}
+.key{background:#fff;color:var(--cardInk);font:800 36px "Baloo 2";box-shadow:0 6px 0 #0a1030;min-height:72px}
+.key.used{opacity:.25}.key.bad{animation:shake .4s;background:#ffd6dd}
 .hint{opacity:.8;font-size:16px;text-align:center;margin:8px 0 0}
 .result{text-align:center;padding-top:6vh}
 .result .bigst{font-size:72px;color:var(--yel);letter-spacing:8px}
@@ -147,7 +152,9 @@ const PNAME=['火焰星','叢林星','冰晶星','莓果星','紫雲星','黃金
 const MODES=[
  {id:'listen',name:'聽聲音找圖',desc:'聽英文，點對的圖',c:'#ff7a1a',ic:'A'},
  {id:'memory',name:'翻牌配對',desc:'把圖和英文字配成一對',c:'#4cc9f0',ic:'B'},
- {id:'boss',name:'打敗怪獸',desc:'看圖，聽三個字選對的',c:'#ff4d6d',ic:'C'}];
+ {id:'boss',name:'打敗怪獸',desc:'看圖，聽三個字選對的',c:'#ff4d6d',ic:'C'},
+ {id:'fill',name:'補字母',desc:'跟小考一樣：把缺的字母補上',c:'#3ddc84',ic:'D'}];
+const MAXW=MODES.length*3;
 const KEY='aliang-rocket-v1';
 let S={st:{}};
 try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&s.st)S=s}catch(e){}
@@ -162,7 +169,7 @@ const beep=(ok)=>{try{AC=AC||new (window.AudioContext||window.webkitAudioContext
 const imgTag=w=>w.img?`<img src="${IMG+esc(w.img)}" alt="" onerror="this.outerHTML='<div class=alt>${esc(w.zh).replace(/'/g,'')}</div>'">`:`<div class="alt">${esc(w.zh)}</div>`;
 const starStr=n=>'★'.repeat(n)+`<span class="off">${'★'.repeat(3-n)}</span>`;
 const total=()=>Object.values(S.st).reduce((a,b)=>a+b,0);
-const LV=[['紙箱火箭',0,'#c8a26b'],['小鐵火箭',15,'#9aa7b8'],['烈焰火箭',35,'#ff7a1a'],['閃電火箭',60,'#4cc9f0'],['黃金火箭',90,'#ffd23f']];
+const LV=[['紙箱火箭',0,'#c8a26b'],['小鐵火箭',20,'#9aa7b8'],['烈焰火箭',45,'#ff7a1a'],['閃電火箭',80,'#4cc9f0'],['黃金火箭',115,'#ffd23f']];
 const level=()=>{const t=total();let i=0;LV.forEach((l,k)=>{if(t>=l[1])i=k});return i};
 function drawRocket(el){const c=LV[level()][2];el.innerHTML=`<g class="flame"><path d="M45 160 Q60 200 75 160Z" fill="#ffd23f"/><path d="M50 160 Q60 185 70 160Z" fill="#ff7a1a"/></g><path d="M60 8 C88 36 92 90 86 160 L34 160 C28 90 32 36 60 8Z" fill="${c}"/><path d="M60 8 C72 22 78 36 80 52 L40 52 C42 36 48 22 60 8Z" fill="#ff4d6d"/><circle cx="60" cy="88" r="17" fill="#17245e" stroke="#fff" stroke-width="6"/><path d="M34 120 L12 160 L36 152Z M86 120 L108 160 L84 152Z" fill="#ff4d6d"/><path d="M40 60 L44 150" stroke="#fff6" stroke-width="5" stroke-linecap="round"/>`}
 
@@ -174,17 +181,17 @@ function home(){
   const t=total(),li=level(),nx=LV[li+1];
   $('lvl').textContent=`${LV[li][0]}`+(nx?`｜再 ${nx[1]-t} 顆星升級成${nx[0]}`:'｜最高等級！');
   $('fuel').style.width=(nx?((t-LV[li][1])/(nx[1]-LV[li][1])*100):100)+'%';
-  $('totalSt').textContent=`★ ${t} / ${WEEKS.length*9}`;
+  $('totalSt').textContent=`★ ${t} / ${WEEKS.length*MAXW}`;
   drawRocket($('rocketHome'));
   $('planets').innerHTML=WEEKS.map((w,i)=>{const s=MODES.reduce((a,m)=>a+(S.st[w+m.id]||0),0);
-    return `<button class="planet" data-wk="${w}"><span class="ball" style="background:${PCOL[i%10]}"></span><b>Week ${w}</b><span class="zh" style="font-size:15px">${PNAME[i%10]}</span><span class="st" style="font-size:16px">★ ${s}/9</span></button>`}).join('');
+    return `<button class="planet" data-wk="${w}"><span class="ball" style="background:${PCOL[i%10]}"></span><b>Week ${w}</b><span class="zh" style="font-size:15px">${PNAME[i%10]}</span><span class="st" style="font-size:16px">★ ${s}/${MAXW}</span></button>`}).join('');
 }
 $('planets').addEventListener('click',e=>{const b=e.target.closest('[data-wk]');if(!b)return;cur.wk=+b.dataset.wk;go('week')});
 
 function week(wk){
   const i=WEEKS.indexOf(wk);
   $('wkTitle').innerHTML=`Week ${wk}・${PNAME[i%10]}<br><span style="font-size:18px;opacity:.8">${DATA[wk].length} 個單字</span>`;
-  $('wkSt').textContent='★ '+MODES.reduce((a,m)=>a+(S.st[wk+m.id]||0),0)+'/9';
+  $('wkSt').textContent='★ '+MODES.reduce((a,m)=>a+(S.st[wk+m.id]||0),0)+'/'+MAXW;
   $('modes').innerHTML=MODES.map(m=>`<button class="mode" data-m="${m.id}"><span class="ic" style="background:${m.c}">${m.ic}</span><span><b>${m.name}</b><small class="zh">${m.desc}</small></span><span class="st">${starStr(S.st[wk+m.id]||0)}</span></button>`).join('');
 }
 $('modes').addEventListener('click',e=>{const b=e.target.closest('[data-m]');if(b)start(b.dataset.m)});
@@ -196,9 +203,10 @@ function start(mode){
   const m=MODES.find(x=>x.id===mode);$('playName').textContent=m.name;
   G={mode,ws,miss:0,i:0,res:[],lock:false};
   if(mode==='memory'){G.q=shuf(ws).slice(0,6);G.n=G.q.length}
+  else if(mode==='fill'){G.q=shuf(ws.filter(w=>w.en.replace(/[^a-z]/gi,'').length>=3&&w.en.replace(/[^a-z]/gi,'').length<=12)).slice(0,8);G.n=G.q.length}
   else{G.q=shuf(ws).slice(0,8);G.n=G.q.length}
   go('play');
-  if(mode==='memory')memory();else question();
+  if(mode==='memory')memory();else if(mode==='fill')fill();else question();
 }
 $('quit').onclick=()=>{try{speechSynthesis.cancel()}catch(e){}go('week')};
 function prog(){$('prog').innerHTML=Array.from({length:G.n},(_,k)=>`<i class="${G.res[k]===1?'ok':G.res[k]===0?'bad':k===G.i?'now':''}"></i>`).join('')}
@@ -227,7 +235,16 @@ $('stage').addEventListener('click',e=>{
     if(G.tries>=2){G.lock=true;G.res[G.i]=0;const r=document.querySelector(`[data-k="${G.opts.indexOf(w)}"]`);r.classList.add('ok');say(w.en);toast(w,1800);setTimeout(next,2000)}
     else if(G.mode==='listen')setTimeout(()=>say(w.en),500)}
 });
-function next(){G.i++;if(G.i>=G.n)finish();else question()}
+function next(){G.i++;if(G.i>=G.n)finish();else if(G.mode==='fill')fill();else question()}
+function blanks(en){const pos=[...en].map((c,i)=>/[a-z]/i.test(c)?i:-1).filter(i=>i>=0);const n=Math.max(1,Math.round(pos.length*.4));return new Set(shuf(pos).slice(0,n))}
+function fill(){prog();const w=G.q[G.i];G.tries=0;G.lock=false;G.hole=blanks(w.en);G.need=[...G.hole].sort((a,b)=>a-b);G.got=0;
+  const miss=G.need.map(i=>w.en[i].toLowerCase());const pool='abcdefghijklmnopqrstuvwxyz'.split('').filter(c=>!miss.includes(c));G.keys=shuf([...miss,...shuf(pool).slice(0,Math.max(3,6-miss.length))]);
+  $('stage').innerHTML=`<div class="pic" style="height:min(30vh,240px)">${imgTag(w)}</div><div class="ask"><button class="spk" id="again1" aria-label="再聽一次">${SPK}</button><div class="fw" id="fw"></div></div><div class="keys">${G.keys.map((c,k)=>`<button class="key" data-f="${k}">${c}</button>`).join('')}</div><p class="hint zh">聽聽看，按順序把缺的字母補上</p>`;
+  drawFill();$('again1').onclick=()=>say(w.en);setTimeout(()=>say(w.en),300)}
+function drawFill(){const w=G.q[G.i];$('fw').innerHTML=[...w.en.toLowerCase()].map((c,i)=>c===' '?'<span class="gap"></span>':G.hole.has(i)?(G.need.indexOf(i)<G.got?`<span class="lt fil">${esc(c)}</span>`:`<span class="lt hole${G.need.indexOf(i)===G.got?' cur':''}">_</span>`):`<span class="lt">${esc(c)}</span>`).join('')}
+$('stage').addEventListener('click',e=>{if(!G||G.mode!=='fill'||G.lock)return;const b=e.target.closest('[data-f]');if(!b)return;const w=G.q[G.i],c=G.keys[+b.dataset.f],want=w.en[G.need[G.got]].toLowerCase();
+  if(c===want){G.got++;b.disabled=true;b.classList.add('used');drawFill();if(G.got===G.need.length){G.lock=true;beep(true);say(w.en);toast(w);G.res[G.i]=G.tries?0:1;setTimeout(next,1600)}}
+  else{G.tries++;G.miss++;beep(false);b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad');if(G.tries>=3){G.lock=true;G.res[G.i]=0;G.got=G.need.length;drawFill();say(w.en);toast(w,1800);setTimeout(next,2200)}}});
 
 function memory(){
   const cards=shuf(G.q.flatMap((w,k)=>[{k,t:'i',w},{k,t:'w',w}]));G.cards=cards;G.open=[];G.found=0;G.res=[];G.i=0;
@@ -245,7 +262,7 @@ $('stage').addEventListener('click',e=>{
 });
 
 function finish(){
-  const lim=G.mode==='memory'?[4,8]:[1,3];
+  const lim=G.mode==='memory'?[4,8]:G.mode==='fill'?[2,5]:[1,3];
   const st=G.miss<=lim[0]?3:G.miss<=lim[1]?2:1;
   const key=cur.wk+G.mode,old=S.st[key]||0,before=level();
   if(st>old){S.st[key]=st;save()}
