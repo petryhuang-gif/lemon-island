@@ -110,6 +110,13 @@ select{border:3px solid var(--line);border-radius:14px;padding:6px 10px;min-heig
   </div>
 </section>
 
+<section id="learn" class="screen">
+  <div class="top"><button class="btn" data-home>← 返回</button><span class="chip" id="lnName"></span></div>
+  <div class="prog" id="lnProg"></div>
+  <div class="q"><div class="pic" id="lnPic"></div><div class="pattern" id="lnW" style="font-size:44px;letter-spacing:2px;color:var(--ink)"></div><div class="zh" id="lnZ"></div><p class="def" id="lnD"></p>
+  <div class="tools"><button class="btn" id="lnSay">🔊 再聽一次</button><button class="btn main" id="lnNext"></button></div></div>
+</section>
+
 <section id="done" class="screen">
   <div class="card res">
     <h1 id="dT"></h1>
@@ -155,7 +162,7 @@ $('qwk').innerHTML=opts;$('cwk').innerHTML=opts;
 $('qwk').onchange=e=>{S.qwk=+e.target.value;save();home()};
 function home(){
   const st=island();$('en0').textContent='⚡ 魔法能量 '+((st&&st.energy)||0);
-  $('qwk').value=S.qwk;$('qk').textContent=`Week ${S.qwk} 的字，10 個，常錯的先出`;
+  $('qwk').value=S.qwk;$('qk').textContent=`先把 Week ${S.qwk} 的字看一遍、聽一遍，再拼 10 個（常錯的先出）`;
   const all=WEEKS.flatMap(words),seen=new Set();
   const wk=all.filter(w=>!seen.has(w.en)&&seen.add(w.en)&&(S.wr[w.en]||0)>0).sort((a,b)=>(S.wr[b.en]-(S.wc[b.en]||0))-(S.wr[a.en]-(S.wc[a.en]||0))).slice(0,12);
   $('weak').innerHTML=wk.length?wk.map(w=>`<span>${esc(w.en)} <small>✗${S.wr[w.en]}</small></span>`).join(''):'<span class="muted" style="background:none">還沒有，開始練習吧！</span>';
@@ -178,7 +185,12 @@ function start(kind){
   $('pname').textContent=kind==='quiz'?`小考特訓 Week ${S.qwk}`:'期末總複習';
   go('play');ask();
 }
-$('mQuiz').onclick=()=>start('quiz');$('mFinal').onclick=()=>start('final');
+let L=null;
+function learnFirst(){const ws=words(S.qwk);L={ws,i:0};$('lnName').textContent=`先複習 Week ${S.qwk}`;go('learn');showLearn()}
+function showLearn(){const w=L.ws[L.i];$('lnProg').innerHTML=L.ws.map((_,k)=>`<i class="${k<L.i?'ok':k===L.i?'now':''}"></i>`).join('');$('lnPic').innerHTML=imgTag(w);$('lnW').textContent=w.show||w.en;$('lnZ').textContent=w.zh;$('lnD').textContent=w.def;$('lnNext').textContent=L.i<L.ws.length-1?'下一個 →':'記住了，開始拼字！';setTimeout(()=>say(w.en),250)}
+$('lnSay').onclick=()=>say(L.ws[L.i].en);
+$('lnNext').onclick=()=>{if(L.i<L.ws.length-1){L.i++;showLearn()}else start('quiz')};
+$('mQuiz').onclick=()=>learnFirst();$('mFinal').onclick=()=>start('final');
 $('again').onclick=()=>start(G.kind);
 function prog(){$('prog').innerHTML=G.q.map((_,k)=>`<i class="${['bad','ok','hint'][G.res[k]]||(k===G.i?'now':'')}"></i>`).join('')}
 function ask(){

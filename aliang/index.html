@@ -93,6 +93,7 @@ button:focus-visible{outline:4px solid var(--yel);outline-offset:3px}
 .quiz b{font-size:24px}.quiz select{font:800 20px 'Baloo 2';border-radius:12px;border:0;padding:6px 10px;min-height:44px}
 .qbtn{display:flex;gap:10px;flex-wrap:wrap}.qbtn .big{font-size:22px;padding:8px 20px}.big.alt2{background:#4361ee;box-shadow:0 6px 0 #2a3aa8}
 .tag{background:var(--yel);color:#3b2a00;border-radius:999px;padding:0 10px;font-size:14px;font-weight:800}
+.lnw{text-align:center;font:800 clamp(48px,10vw,76px)/1.1 'Baloo 2';margin-top:6px;letter-spacing:2px}.lnz{text-align:center;font-size:26px;font-weight:800;margin-bottom:14px;opacity:.9}
 .hint{opacity:.8;font-size:16px;text-align:center;margin:8px 0 0}
 .result{text-align:center;padding-top:6vh}
 .result .bigst{font-size:72px;color:var(--yel);letter-spacing:8px}
@@ -132,6 +133,14 @@ button:focus-visible{outline:4px solid var(--yel);outline-offset:3px}
   <div class="top"><button class="ghost" id="quit">← 離開</button><span class="pill" id="playName"></span></div>
   <div class="prog" id="prog"></div>
   <div id="stage"></div>
+</section>
+
+<section id="learn" class="screen">
+  <div class="top"><button class="ghost" data-go="home">← 回地圖</button><span class="pill" id="lnName"></span></div>
+  <div class="prog" id="lnProg"></div>
+  <div class="pic" id="lnPic" style="height:min(36vh,300px)"></div>
+  <div class="lnw" id="lnW"></div><div class="lnz zh" id="lnZ"></div>
+  <div class="row"><button class="ghost" id="lnSay" style="min-height:64px;font-size:22px">🔊 再聽一次</button><button class="big" id="lnNext"></button></div>
 </section>
 
 <section id="done" class="screen">
@@ -209,6 +218,11 @@ let G=null;
 const toast=(w,ms=1300)=>{$('tEn').textContent=w.en;$('tZh').textContent=w.zh;$('toast').classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>$('toast').classList.remove('on'),ms)};
 const fillOK=w=>{const n=w.en.replace(/[^a-z]/gi,'').length;return n>=3&&n<=12};
 const weak=w=>(S.wr[w.en]||0)*2-(S.wc[w.en]||0)+Math.random()*1.5;
+function learnFirst(){cur.special='quiz';const ws=words(S.qwk).filter(w=>w.d.includes(QDAY));L={ws,i:0};$('lnName').textContent=`先複習：W${S.qwk} 星期${DAYN[QDAY]}`;go('learn');showLearn()}
+let L=null;
+function showLearn(){const w=L.ws[L.i];$('lnProg').innerHTML=L.ws.map((_,k)=>`<i class="${k<L.i?'ok':k===L.i?'now':''}"></i>`).join('');$('lnPic').innerHTML=imgTag(w);$('lnW').textContent=w.en;$('lnZ').textContent=w.zh;$('lnNext').textContent=L.i<L.ws.length-1?'下一個 →':'記住了，開始小考！';setTimeout(()=>say(w.en),250)}
+$('lnSay').onclick=()=>say(L.ws[L.i].en);
+$('lnNext').onclick=()=>{if(L.i<L.ws.length-1){L.i++;showLearn()}else startSpecial('quiz')};
 function startSpecial(sp){cur.special=sp;const src=sp==='quiz'?words(S.qwk).filter(w=>w.d.includes(QDAY)):FINAL.flatMap(words);
   const ws=sp==='quiz'?src.filter(w=>w.en.replace(/[^a-z]/gi,'').length>=2):src.filter(fillOK);const seen=new Set();const pool=ws.filter(w=>!seen.has(w.en)&&seen.add(w.en));
   G={mode:'fill',ws:pool,miss:0,i:0,res:[],lock:false};G.q=sp==='quiz'?shuf(pool):pool.slice().sort((a,b)=>weak(b)-weak(a)).slice(0,10);G.n=G.q.length;
@@ -290,7 +304,7 @@ function finish(){
 }
 $('again').onclick=()=>cur.special?startSpecial(cur.special):start(cur.mode);
 $('back2').onclick=()=>go(cur.special?'home':'week');
-$('goQuiz').onclick=()=>startSpecial('quiz');$('goFinal').onclick=()=>startSpecial('final');
+$('goQuiz').onclick=()=>learnFirst();$('goFinal').onclick=()=>startSpecial('final');
 $('qwk').innerHTML=WEEKS.map(w=>`<option value="${w}">Week ${w}</option>`).join('');
 $('qwk').onchange=e=>{S.qwk=+e.target.value;save();home()};
 $('qday').innerHTML=[1,2,3,4,5].map(d=>`<option value="${d}">星期${DAYN[d]}</option>`).join('');
