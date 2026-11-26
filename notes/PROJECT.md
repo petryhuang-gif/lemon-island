@@ -17,6 +17,7 @@ Cambridge A1 Movers 練習遊戲（iPad Safari／主畫面 App）。考試日 20
 | `questions.html` | 給老師的「題目總覽」（全部題目＋答案＋單字表），內容用家長密碼加密，遊戲裡沒有連結。**改了題目一定要重跑** `node tools/build-questions.js <密碼>` 再上傳 |
 | `tools/build-questions.js` / `tq.js` / `t44.js` | 產生題目總覽／總覽頁測試／家長區密碼測試（密碼當參數傳，不寫進 repo） |
 | `notes/Movers單字表_抽查用.csv` | 給家長抽查中文意思的單字表 |
+| `aliang/index.html` | 阿兩的單字火箭（Onyx 班 Quizlet Week 9–20 單字，聽音找圖／翻牌配對／打怪獸）。圖片直接連 Quizlet，星星存 localStorage `aliang-rocket-v1` |
 
 ## 遊戲結構
 - 6 章：1 入門、2 讀寫、3 聽力、4 口說、5 模擬考（exam 模式）、6 考前特訓營（15 關新題，`drill:true`，2026-12-15 起自動 exam 模式）。
