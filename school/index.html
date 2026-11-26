@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>學校單字小考練習</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Noto+Sans+TC:wght@500;800&display=swap" rel="stylesheet">
+<style>
+/* VOICE: 冒險島的延伸教室，溫柔、閃亮、給 8 歲愛漂亮的女孩
+   IDEA: 魔法拼字本——每拼對一個字，書頁亮一顆星
+   PICTURE: 題目卡（老師的圖＋中文）是畫面主角
+   COLOUR/TYPE: 冒險島同款：奶油底、粉紅主色、薰衣草輔色、金色點綴；Baloo 2＋Noto Sans TC
+   LAYOUT: iPad 直式為主，輸入框大、按鈕 52px 以上 */
+:root{--sky:#d6eaff;--cream:#fffaf2;--ink:#3a3366;--pink:#ff8dbd;--pinkd:#d9548f;--lav:#a894ef;--lavl:#ece6ff;--mint:#7fd3b6;--gold:#ffc23d;--line:#e4daf7;--bad:#d94a70;--good:#24906c}
+*{box-sizing:border-box;min-width:0;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{background:linear-gradient(180deg,#ffe3f1 0%,#ece6ff 55%,#d6eaff 100%) fixed;color:var(--ink);font:17px/1.55 "Baloo 2","Noto Sans TC","PingFang TC",system-ui,sans-serif;min-height:100vh;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+.wrap{max-width:860px;margin:0 auto;padding:16px}
+.screen{display:none}.screen.on{display:block}
+h1{font:800 clamp(30px,5.5vw,44px)/1.1 "Noto Sans TC";margin:6px 0 4px;text-wrap:balance}
+h1 span{color:var(--pinkd)}
+h2{font:800 24px/1.2 "Noto Sans TC";margin:0 0 10px}
+.muted{opacity:.75}
+.card{background:var(--cream);border-radius:28px;padding:18px 20px;box-shadow:0 6px 0 var(--line);margin-top:16px}
+button,select,input{font:inherit;color:inherit}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:54px;padding:0 22px;border-radius:999px;font-weight:800;font-size:18px;background:#fff;color:#a257a2;border:3px solid #f1d2f0;box-shadow:0 4px 0 #e5c3ea;cursor:pointer}
+.btn.main{background:var(--pink);color:#fff;border-color:var(--pinkd);box-shadow:0 4px 0 var(--pinkd)}
+.btn.lav{background:var(--lav);color:#fff;border-color:#8a75de;box-shadow:0 4px 0 #7d68d6}
+.btn:active{transform:translateY(3px);box-shadow:none}
+.btn:focus-visible,select:focus-visible,input:focus-visible{outline:4px solid var(--gold);outline-offset:2px}
+.btn[disabled]{opacity:.45}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.chip{background:#fff;border-radius:999px;padding:4px 14px;font-weight:800;white-space:nowrap;box-shadow:0 3px 0 var(--line)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+select{border:3px solid var(--line);border-radius:14px;padding:6px 10px;min-height:48px;background:#fff;font-weight:800}
+.big3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:14px}
+.mode{background:#fff;border:3px solid var(--line);border-radius:24px;padding:16px;text-align:left;cursor:pointer;box-shadow:0 5px 0 var(--line);display:flex;flex-direction:column;gap:4px}
+.mode b{font:800 22px "Noto Sans TC"}.mode .k{font-size:15px;opacity:.75}
+.mode .bar{height:8px;border-radius:4px;margin-bottom:6px}
+.weak{display:flex;flex-wrap:wrap;gap:8px}
+.weak span{background:#fff;border-radius:12px;padding:2px 10px;font-weight:800}
+.weak small{color:var(--bad)}
+.prog{display:flex;gap:5px;margin:10px 0}
+.prog i{flex:1;height:10px;border-radius:5px;background:#fff}
+.prog i.ok{background:var(--mint)}.prog i.hint{background:var(--gold)}.prog i.bad{background:var(--bad)}.prog i.now{background:var(--lav)}
+.q{background:#fff;border-radius:28px;padding:16px;box-shadow:0 6px 0 var(--line)}
+.pic{height:min(30vh,230px);display:grid;place-items:center}
+.pic img{max-width:100%;max-height:100%;object-fit:contain}
+.zh{font:800 26px/1.3 "Noto Sans TC";text-align:center;margin:8px 0 2px}
+.def{text-align:center;font-size:16px;opacity:.8;margin:0}
+.pattern{text-align:center;font:800 32px "Baloo 2";letter-spacing:6px;color:var(--pinkd);min-height:44px;margin:6px 0}
+.ans{display:flex;gap:10px;margin-top:10px}
+.ans input{flex:1;font:800 30px "Baloo 2";border:4px solid var(--line);border-radius:18px;padding:6px 16px;min-height:64px;background:#fff}
+.ans input.bad{border-color:var(--bad);animation:shake .4s}.ans input.ok{border-color:var(--good)}
+@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.msg{text-align:center;font-weight:800;min-height:30px;margin:8px 0 0}
+.msg.bad{color:var(--bad)}.msg.ok{color:var(--good)}
+.tools{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.list{display:grid;gap:8px;margin-top:10px}
+.li{display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;background:#fff;border-radius:18px;padding:8px 12px}
+.li img{width:64px;height:48px;object-fit:contain}
+.li b{font:800 22px "Baloo 2";display:block;line-height:1.1}
+.li .s{font-size:15px}
+.li button{min-height:48px;width:48px;border-radius:50%;border:0;background:var(--lavl);cursor:pointer;font-size:20px}
+.res{text-align:center}
+.res .st{font-size:56px;color:var(--gold);letter-spacing:6px}
+.res .st .off{color:#fff}
+.note{background:#fff3cd;border-radius:14px;padding:8px 12px;font-size:15px}
+@media(max-width:600px){.ans{flex-direction:column}.ans .btn{width:100%}.li{grid-template-columns:52px 1fr auto}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<section id="home" class="screen on">
+  <div class="top"><a class="btn" href="../">← 回冒險島</a><span class="chip" id="en0"></span></div>
+  <h1>學校單字<span>小考練習</span></h1>
+  <p class="muted" style="margin:0">老師 Quizlet 的 Week 9–20 單字。看圖、聽發音，把整個字拼出來。</p>
+  <div class="card">
+    <div class="row"><b style="font-size:20px">本週小考</b><select id="qwk" aria-label="本週小考週次"></select><span class="muted" style="font-size:14px">每週由爸媽改・期末考範圍 Week 9–20</span></div>
+    <div class="big3">
+      <button class="mode" id="mQuiz"><span class="bar" style="background:var(--pink)"></span><b>小考特訓</b><span class="k" id="qk"></span></button>
+      <button class="mode" id="mFinal"><span class="bar" style="background:var(--lav)"></span><b>期末總複習</b><span class="k">Week 9–20 混合 10 個字，常錯的先出</span></button>
+      <button class="mode" id="mCards"><span class="bar" style="background:var(--mint)"></span><b>單字卡</b><span class="k">先看一遍、聽一遍再拼</span></button>
+    </div>
+  </div>
+  <div class="card"><h2>最常拼錯的字</h2><div class="weak" id="weak"></div></div>
+  <p class="muted" style="font-size:14px;margin-top:14px">完成一次特訓或總複習可得 ⚡魔法能量（同一天最多 ⚡6），會直接加進冒險島。</p>
+</section>
+
+<section id="cards" class="screen">
+  <div class="top"><button class="btn" data-home>← 返回</button><select id="cwk" aria-label="選週次"></select></div>
+  <div class="list" id="clist"></div>
+</section>
+
+<section id="play" class="screen">
+  <div class="top"><button class="btn" data-home>← 離開</button><span class="chip" id="pname"></span></div>
+  <div class="prog" id="prog"></div>
+  <div class="q">
+    <div class="pic" id="pic"></div>
+    <div class="zh" id="qzh"></div>
+    <p class="def" id="qdef"></p>
+    <div class="pattern" id="pat"></div>
+    <form class="ans" id="form" autocomplete="off"><input id="inp" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" aria-label="拼出這個英文字"><button class="btn main" type="submit">檢查</button></form>
+    <div class="msg" id="msg"></div>
+    <div class="tools"><button class="btn" id="bSay">🔊 再聽一次</button><button class="btn" id="bHint">💡 提示</button><button class="btn" id="bDef">英文解釋</button></div>
+  </div>
+</section>
+
+<section id="done" class="screen">
+  <div class="card res">
+    <h1 id="dT"></h1>
+    <div class="st" id="dSt"></div>
+    <p id="dMsg" style="font-weight:800"></p>
+    <div class="list" id="dList" style="text-align:left"></div>
+    <div class="row" style="justify-content:center;margin-top:16px"><button class="btn main" id="again">再練一次</button><button class="btn" data-home>回首頁</button></div>
+  </div>
+</section>
+
+</div>
+<script>
+{
+const DATA={"9":[["roll my eyes","翻白眼","WwcMA295iF48kOV2UICJfg_m.jpg","to move my eyes upwards and around because someone has done something strange","",[]],["cousin","堂表兄弟姊妹","DDWolIn0hVr1k5AvyXyO0w_m.png","uncle or aunt's child","",[]],["secret","秘密","rsDvfHurT75a4WwAbUHgLw_m.jpg","not known or seen by others","",[]],["handshake","握手","i/myeGBnxv2axMYvlwUeHwyw_m.jpg","an act of shaking a person's hand","",[]],["promise","承諾、答應","jlRk7UlSRoV3.6wwSaoR2g_m.jpg","the act of saying that you will certainly do something","",[]],["silly look","滑稽的表情","iKWg.kBfpQz8SKQdZGgd-A_m.jpg","to look foolish or funny","",[]],["scientist","科學家","i/af6MSvkFQBYc7XPwxJG6FA_m.jpg","an expert who studies or works in one of the sciences","",[]],["natural resource","自然資源","YXNJvzxjcD98V5kRFNiFMQ_m.png","things people use from Earth","",[]],["rock","岩石","QmsWLjY3baBJ04CtUuqqJg_m.jpg","the dry, solid part of the Earth's surface, or any large piece of minerals mixed together","",[]],["hard","硬的","RXr8un710oBDGpX7jOu-6A_m.jpg","not easy to bend, cut, or break","",[]],["dig","挖","i/R_eEO3nsqn3UgromzMb33A_m.jpg","to break up and move soil","",[]],["tool","工具","Pu58yTtoktkTdIj65LJpbg_m.jpg","a piece of equipment that you use with your hands to make or repair something","",[]],["carve","雕刻","mGwjdEpwuBvezEgS56MRMQ_m.jpg","to make something by cutting","",[]],["bored","無聊的","FjLljikcO5.dpMSMYewY9w_m.jpg","feeling unhappy because you have nothing to do","",[]],["businessman","商人","j6GBiwJaXVUR.Rq6ckA.zg_m.jpg","a man who works in business","",[]],["celebrate","慶祝","fGoWckSC1uTpCyiJIy.gig_m.png","to do something enjoyable because of a special event","",[]],["chef","廚師","i/1qYdjr4fRXcKAHznQBs1Pg_m.jpg","a cook in a restaurant or hotel","",[]],["doctor","醫生","i/BlMj1fP_zdtRsrbCU2BnmA_m.jpg","a person who is qualified to treat people who are ill","",[]]],"10":[["end","結束","Gmb7Zw5umZXoP9qZHhftJA_m.jpg","to finish or stop","",[]],["look forward to","期待","25ZuchjfrG.9wZ6HC.JKJw_m.png","to feel good because something is going to happen","",[]],["go for a walk","去散步","XOjZi22wI4qzmQoIHtHAOw_m.jpg","to walk for a good time","",[]],["ladder","梯子",".Rg2f8uCgpZNkR0lJLNaEQ_m.jpg","a tool with steps used for climbing","",[]],["barn","穀倉","2GQSy6i4yyy1ymaOI78V0A_m.jpg","a large farm building used to keep animals, tools, or crops","",[]],["hay","乾草","noj3b6VPJU2uZEqyTsw1eg_m.jpg","grass that is cut, dried, and stored for animal food","",[]],["chase","追","0bUDuH9DE8PQw8N5mTtBTQ_m.jpg","to follow to try to catch; run after","",[]],["firefly","螢火蟲","9aPwdLESuVn3l51mDZ4gMg_m.jpg","an insect whose tail flashes with light at night","",[]],["meadow","草地","0yb.x9V01ONrzE4pJzZsNQ_m.jpg","a field with grass and often wild flowers in it","",[]],["think","想（過去式 thought）","Dv6u.6J0Mgu.dWANBO2RKQ_m.jpg","to use the mind for ideas","think – thought",[]],["chipped","有缺口的","zPuB4iDFjwr0.rfniGxo9Q_m.jpg","a small piece of an object with pieces broken off","",[]],["ground","磨碎的","r1ui.duoHDFYMARczMUO5w_m.jpg","to rub with a harder object until it turns to a powder or smaller material","",[]],["ax","斧頭","qhC6JyeLb8e6Gp3EVCreCg_m.jpg","a tool consisting of a heavy iron or steel blade at the end of a long wooden handle","",["axe"]],["statue","雕像","https://farm3.staticflickr.com/2499/3863184574_1ea4c4a94a_m.jpg","an object made from a hard material, especially stone or metal, to look like a person or animal","",[]],["limestone","石灰岩","jEkVR2lQ5csKcnpU1ZnjiA_m.jpg","a white or light grey rock that is used as a building material and in the making of cement","",[]],["sparkle","閃閃發亮","hYWp0f9-46kI-q7LruXGfw_m.jpg","to shine brightly with a lot of small points of light","",[]],["mineral","礦物","W3W8JRq3RQZqeSu6zgqYBg_m.jpg","a substance that is formed naturally in rocks","",[]],["firefighter","消防員","18pKBvw-zLvi3VwK5Qzocg_m.jpg","a person whose job is to stop fires from burning","",[]],["fire station","消防局","suUP8wllJ6AYXPW7chGF.Q_m.jpg","a building where firefighters work","",[]],["hospital","醫院","t.r2C8eOGQ8tmaGXekV4mg_m.jpg","a place where people who are ill or injured are taken care of by doctors and nurses","",[]],["library","圖書館","eAem3u67qPLI-VnKpyGr3A_m.jpg","a building that has books for people to read or borrow","",[]],["nurse","護理師","JQTH8Vtm11fBOgtSn6fMfw_m.jpg","a person who is trained to care for sick and injured people","",[]]],"11":[["message","訊息","3F4-UL7aSzc6Odp8vZ5K7g_m.jpg","a short piece of information that you give to a person or group","",[]],["neighborhood","社區、附近","8dVZE8EvaQjjr9-8iYWWQg_m.jpg","the area that surrounds someone's home","",[]],["neighbor","鄰居","wLf2Ynj4FPxjZZ3BM.tLFQ_m.jpg","someone who lives very close to you","",[]],["lots of","很多的","BaJ7C0x0G4M26J7JyxgDLg_m.jpg","a lot of; many","",[]],["block","街區","24KZXH5ZUx3gkOas6FFUFQ_m.jpg","an area surrounded by streets with buildings","",[]],["remember","記得","FYo77GZqyhSyeFOvi4mZZA_m.jpg","to bring back into the mind from memory","",[]],["country","鄉下","i/gOG3IGKAJeOec68CTe0wDQ_m.jpg","land that is not in towns or cities","",[]],["amazing","令人驚奇的","Y95E9qlz.34P2OsXWWlnFw_m.jpg","very good and surprising","",[]],["make plans","做計畫","4q-nmKGVf8mTtHxlo2A64Q_m.jpg","to think about or plan what you will do in the future","",[]],["graphite","石墨","i/3RWtzdouu7xAIJbtGBlo5A_m.jpg","a soft, dark grey form of carbon, used in the middle of pencils","",[]],["magnetite","磁鐵礦","YJvQOqX4OrGYLAI1nKCp6w_m.jpg","a grey-black magnetic mineral","",[]],["fluorite","螢石","bnLlJz8PjjVrvtf3ElkCjw_m.jpg","a transparent or translucent mineral of different colors that consists of the fluoride of calcium","",[]],["turquoise","綠松石","zcOYCnpHSYeeuV-0rsOWww_m.jpg","a bluish-green semi-precious stone that is often used in jewelry","",[]],["millions","數百萬","o3yW2sHEGK3pCdX5koiQvQ_m.jpg","plural form of million","",[]],["jewelry","珠寶","X2VkRwX58Qu2dN9EpAOIjw_m.jpg","decorative objects worn on your clothes or body that are usually made from valuable metals","",["jewellery"]],["fingernail","指甲",".qsgDKrKy4tM.Ddy73EZqQ_m.jpg","the hard, slightly curved part that covers and protects the top of the end of a finger","",[]],["office","辦公室","KumZoiDgyunl15GbFxQz-w_m.jpg","a place where business or professional work is done","",[]],["police officer","警察","bYnRM4stenDQPRSZTXjZag_m.jpg","a member of the police force","",[]],["restaurant","餐廳","hGyB0c5sBExr9IPB.lwsjg_m.jpg","a place where you can eat a meal and pay for it","",[]],["scientist","科學家","i/af6MSvkFQBYc7XPwxJG6FA_m.jpg","someone who has studied science","",[]],["secretary","秘書","c3mPDy68STo390pBQGUoaQ_m.jpg","someone who works in an office, writing letters, making phone calls, and arranging meetings for another person","",[]]],"12":[["fearless","無所畏懼的","4dXkHdUjM2KrKXxq9R5hiw_m.jpg","without fear; brave","",[]],["dangerous","危險的","v5pzzpU58zXjBrrnabO.cw_m.jpg","likely to cause harm; not safe","",[]],["family","家人、家庭","UlK.i11S1sAgLF3rOtW9KA_m.jpg","a group of people such as a mother, a father, and their children","",[]],["train","訓練","uxmBlmOQSy9Hydc9ovQ0CQ_m.jpg","to teach skills or action","",[]],["always","總是","6RReG79RArrmW8ngO1XgXw_m.jpg","every time or all the time","",[]],["thing","東西","ftuiP8.ibOlvrPZm.QPdHQ_m.jpg","an object that is not a person or alive","",[]],["mostly","大多、通常","qBraczocABsl0PzP2pl1ZA_m.jpg","usually","",[]],["winter time","冬天的時候","Dyt9ynZaTWlkSUHVg3XzVQ_m.jpg","the season of winter","",[]],["listen to","聽","bXwmlfwJNr0eIUcw1u3fIQ_m.jpg","to hear and pay attention to","",[]],["bakery","麵包店","uw6yxusOc73zrjZKfwrooQ_m.jpg","a place where bread and cakes are made and sold","",[]],["drugstore","藥局","3QQ5X3s-q31dYieSJfr9Fg_m.png","a shop where drugs and medicines are sold","",[]],["movie theater","電影院","47Un0oV8UwuD6pRhf1NLCQ_m.jpg","a place where people go to watch films","",[]],["museum","博物館","Qmvp5WIPj9sTo2FlSCvAzQ_m.jpg","a building where a large number of historical and valuable objects, such as works of art are kept","",[]],["police station","警察局","CAKIh4Pp7eNfNYAkA0yxmg_m.jpg","the local office of the police in a town or part of a city","",[]],["contain","包含","","to have something inside or include something as a part","",[]],["soil","土壤","","the material on the surface of the ground in which plants grow","",[]],["texture","質地、觸感","","the way that it feels when you touch it; smooth or rough","",[]],["darker","比較暗的","0l01jj3dU2qPA5YD.afEAQ_m.jpg","comparative form of adjective dark","",[]],["rough","粗糙的","LmcfOb2O1-boV6sPAIDufA_m.jpg","not smooth","",[]],["gravel","碎石","5sjkmPSXPMZaR.it0V8ukw_m.jpg","small, rounded stones, often mixed with sand","",[]],["silt","淤泥","KBj-N0Sxipbc3GKDoxYuag_m.jpg","sand or soil that is carried along by flowing water","",[]],["decompose","分解","i/DuWXU_7l_6k6-5CyMecc0Q_m.jpg","to rot or decay","",[]],["compost","堆肥","ieoWvasiIasy3Dq.zChmpg_m.jpg","a mix of soil and rotting parts of plants and animals","",[]],["rot","腐爛","LK518jyrucyDVXnqWjuFHg_m.jpg","to cause something to decay","",[]]],"13":[["run across","跑過（馬路）","BsHOtRDJ7JRXJqlPS7NUNw_m.jpg","to cross quickly from one side of the street to the other","",[]],["fall into","掉進（過去式 fell into）","koTAQvXTT0QyisbzG4TwFw_m.png","to suddenly fall from a height into something","fall into – fell into",[]],["stay away","遠離","uc6UjX9opZSmBOuJglSZaA_m.jpg","to not go near something or someone","",[]],["get out","出去、離開","sl1yafDtGRzy5TZVH6mCzw_m.jpg","to leave a place; to move outside","",[]],["run away","逃跑","QOOIT7KpzLCwZZzMmzmujw_m.jpg","take quick steps and leave from a place or a location","",[]],["collar","項圈","2PgXLxBQ2tNOMj5ScmGC6Q_m.jpg","a strap made of strong material that is put around the neck","",[]],["love someone too much","太愛某人","awBox26ThgAEyjLHc4p4Qg_m.png","to love someone a lot","",[]],["little by little","一點一點地","2qscMivCP-1Sl.mi.0SSlw_m.jpg","slowly","",[]],["beneath","在……下面","kUizk2qXOTcjrNP5hz8T7w_m.png","in or to a lower position than someone or something, under someone or something","",[]],["log","木頭、圓木","LQWq-CkIL62rMOyR9UGhog_m.jpg","a thick piece of tree trunk or branch, especially one cut for burning on a fire","",[]],["mushroom","蘑菇","KiDJTGoCWRRrvygTyRrZsw_m.jpg","a fungus with a round top and short stem. Some look like umbrellas.","",[]],["nutrient","養分","eohijG8BCUV5DMwmKIJV.w_m.jpg","any substance that plants or animals need","",[]],["clay soil","黏土","cQxoCeeukfvWR5DAWgxx7Q_m.jpg","a soil that contains a high percentage of fine particles and colloidal substance and becomes sticky when wet","",[]],["sandy soil","沙土","NXhoxtOsGE2eyH1Q47CzKQ_m.jpg","it is often known as light soils due to their high proportion of sand and little clay","",[]],["topsoil","表土","i/X71yoB6KXwk9LFOOmLeRlg_m.jpg","the top layer of ground in which plants grow","",[]],["subsoil","底土","8Bs850pG0zRw3s7F4Dkdog_m.jpg","the layer of soil that is under the topsoil","",[]],["break down","分解","QqX6jJ.Zv-aKyd-.YNmCUw_m.png","to make a substance separate into parts or change into a different form in a chemical process","",[]],["post office","郵局","lFIeRuuXo0dO11LjfeIfHw_m.jpg","a building where you can buy stamps, post letters and packages","",[]],["supermarket","超級市場","i/SdLFSfMeGXK-7Lr2YX-A4w_m.jpg","a large shop which sells all kinds of food and some household goods","",[]],["train station","火車站","4KXwpeLg9dgvrQHpNL5U4w_m.jpg","a place where trains stop for people to get on or off","",[]],["airplane","飛機","hUs4RVKAIiO3LNyjQrCQ1w_m.jpg","a vehicle designed for air travel that has wings","",[]],["ferry","渡輪","hUZzTBg7Vbs2AUDKzOkKyg_m.jpg","a boat for taking passengers and vehicles across an area of water","",[]]],"14":[["grab","抓住","C.PMBdU4yOXtr6MstsIl6g_m.jpg","to take hold of something or someone with your hand","",[]],["pull up","拉起來","ELdauXLtzBPFduzqb9-m-A_m.png","use your hands to move something up","",[]],["safe","安全的","kAZ8Onp40TI3urei7O.3xA_m.jpg","not in danger","",[]],["soon","很快、不久","RvHyk0dnp2c6FPpHtlfJtA_m.jpg","in a short time","",[]],["by the fire","在火爐旁","KncpG-RRm8bAx-qHEtZsVw_m.png","near the fire","",[]],["wonderful","很棒的","7uiTszg1d5-1kHgECLMytg_m.jpg","very good","",[]],["because","因為","Gdxy4nnoInyusJfqTQJCug_m.jpg","for the reason that","",[]],["different","不一樣的","cgK9zDQyFeTqbjDzKIVrWA_m.png","not the same","",[]],["say something else","說別的事","7mE51eTnDsHS4peNpOX-3w_m.jpg","to talk about other things","",[]],["reduce","減少","vDu-lTBmoJGlCCz2yJBXww_m.jpg","to cut back on how much you use something","",[]],["reuse","重複使用","su9omoks8JhrzBZRHoqIdg_m.jpg","to use something again","",[]],["recycle","回收","EkX.H7PNwEmjkAh60a.naQ_m.jpg","to make new items out of old items","",[]],["plastic","塑膠","3E5G4-tLbTADtCjgKY67yw_m.jpg","an artificial substance that can be shaped when soft into many different forms","",[]],["litter","垃圾","GG.D-CVRCZ0ygY-4vvvEjQ_m.jpg","small pieces of garbage that have been left lying on the ground in public places","",[]],["picnic","野餐","MX8Kl9l3irm1fJXfcUr6Iw_m.jpg","an occasion when you have an informal meal of sandwiches, etc. outside","",[]],["hurt","受傷、弄痛","i/nd_8Q6pThdc2oPzb3pidNA_m.jpg","to injure someone or cause them pain","",[]],["bank","銀行","cmJx-H6Ffs0LhbPRXV3LLw_m.png","a place where people or business can keep their money","",[]],["behind","在……後面","i/I0h-SC_fL2dUIhYZ66LeHg_m.jpg","at the back (of)","",[]],["bookstore","書店","pRmJtweQBfywLl76JG.VXg_m.jpg","a store where books are sold","",[]],["café","咖啡店","VjzVhRntBez79O9kCoJNMQ_m.jpg","a restaurant where simple and usually quite cheap meals are served","",["cafe"]],["near","在……附近","hLAQQAZlIst8U8GbmW.8.w_m.jpg","not far away","",[]]],"15":[["flour","麵粉","CnIrxdZQisTtXtU3Ifauug_m.jpg","powder made from grain or wheat","",[]],["sweep","掃地（過去式 swept）","P4vHoEnczQX5-4igXDgfLA_m.jpg","to clean the floor by using a brush or broom","sweep – swept",[]],["sidewalk","人行道","i/9iEtBUWmGu7Gn2iGsHLLoQ_m.jpg","a path with a hard surface on a road that people walk on","",[]],["daughter","女兒","YGItKWJBnXgU.pWfckj5xw_m.jpg","the girl who is the child of parents","",[]],["get married","結婚","oPkl-XFaqJhckKc5JXlIlw_m.png","to begin a relationship with someone as their husband or wife","",[]],["garden","花園","https://farm1.staticflickr.com/210/464791157_b9965da377_m.jpg","an area of land used for growing flowers or vegetables","",[]],["make a living","謀生","i/GsIoe6SP3KD7CxC8_Z1xAw_m.jpg","to earn the money, one needs to pay for housing and food","",[]],["half","一半","i/Zzyf35J8yUmh0zgdy0evfg_m.jpg","one of two equal parts of a whole","",[]],["alone","獨自","KoBiJ92z-.r7PDPjYWYfNQ_m.jpg","without other people","",[]],["factory","工廠（複數 factories）","L5DeEezlPliGgc9CQGAsRw_m.png","a large building where machines are used to make lots of goods","factory – factories",[]],["pollution","污染","yJzIz3Mkg.fvtl9t50ZfUA_m.jpg","the process of damaging the air, water, or land","",[]],["waste","浪費（過去式 wasted）","CTuKW2Wq.f8bRLxlSD0rJQ_m.jpg","to use too much of something or use something badly when there is a limited amount of it","waste – wasted",[]],["filter","過濾","0-PDikfX50OQiDkgjtdV2g_m.jpg","to remove solids from liquids or gases","",[]],["fuel","燃料","i/m1ZYEIErJmCQPimsbng0vw_m.jpg","a substance that is used to provide heat or power, usually by being burned","",[]],["animal parts","動物身上的材料","1ydhOLPAVuJemK5uXmQ0vQ_m.jpg","parts of animals that people use as resources example: leather, bones, meat, horns, etc.","",[]],["crop","農作物","i/Si40bzsYAvjWEvJ1uzhWNw_m.jpg","a plant such as a grain, fruit, or vegetable grown in large amounts for human use","",[]],["opposite","在……對面","P-3CYOwTrJsjO.YzgPSDEA_m.png","in a position facing someone or something but on the other side","",[]],["shopping center","購物中心","MNuF9Tx8tPlftx2Jv.AguQ_m.jpg","a group of shops with a common area for cars to park","",[]],["sports center","運動中心","IXjuixiMY2gEM5c5dsbzxw_m.jpg","a building where you can play different sports","",[]],["swimming pool","游泳池","jFiUcygVf2SyET30ML76ow_m.jpg","an area of water for swimming","",[]],["helicopter","直升機","grK5Lc1RVkfxGuBDSm5jVA_m.jpg","a type of airplane without wings, with a propeller that goes round very fast on top","",[]]],"16":[["toward","朝向","heLDfQJjBFn0gp0vrdwgtg_m.jpg","in the direction of, or closer to someone or something","",[]],["add","加","agpbTyo-XMHBB8FTWRpYcQ_m.jpg","to put two or more numbers or amounts together to get a total","",[]],["ripe","成熟的","Z-AO--lV-taujU79mmJ9fQ_m.jpg","fruit or crops completely ready to be collected","",[]],["ear","穗","JSmH3RyKMN7ZlhBCyE4Zxg_m.jpg","the flower part of a plant like a grass that later contains the grains that are used as food","",[]],["invite","邀請","i/3TB1JHLkx1dopY24nSWkcQ_m.jpg","to ask or request someone to go to an event","",[]],["think","想（過去式 thought）","Dv6u.6J0Mgu.dWANBO2RKQ_m.jpg","to use the mind for ideas","think – thought",[]],["chili","辣椒","14IIBnI0PWbCTFsJoye96w_m.jpg","a kind of pepper that is spicy","chili / chile",["chile"]],["furniture","家具","-4L1gsPuaDn2cleOIi0-IQ_m.jpg","things such as chairs, tables, beds, etc. that are put into a house","",[]],["replace","更換、取代","WzzUVmfEKxkvRCUzVtLiPA_m.jpg","to get rid of someone or something, and to put a new person or thing in their place","",[]],["wind","風","Dt-RPLNxnpTmeSysOwP48A_m.jpg","the natural, forceful movement of air","",[]],["natural","天然的","U4jVlhPUfAcHFDVAAsvUBA_m.jpg","as found in nature and not involving anything made or done by people","",[]],["conserve","節約、保護","ZS1LY4bHTTYADUf1lLL8hA_m.png","to keep and protect something from damage, change, or waste","",[]],["power","電力","nQvIWDdFIGJn7CKcJFj.LA_m.jpg","energy, especially electricity","",[]],["hot air balloon","熱氣球","Ibt8icp1pyq.hGb1Rp4U6g_m.jpg","a large balloon with a basket underneath in which people can travel","",[]],["motorcycle","摩托車","AyTCTEED52MCextNXrCUng_m.jpg","a vehicle with two wheels and an engine","",[]],["sailboat","帆船","i/Wx55P7vCzza5_CrV9ysA4A_m.jpg","a small boat with sails","",[]],["scooter","小綿羊機車","qHqMcXZWNIFeP-ky1CbVIA_m.jpg","a small light motorcycle which has a low seat","",[]],["ship","大船","i/8nckMwC8QzMNHaHb5A2UkA_m.jpg","a large boat for travelling on water, especially across the sea","",[]]],"19":[["history","歷史","WLUFHPQ0ugwPlqDHj9qXMQ_m.jpg","the study of past events","",[]],["clean up time","打掃時間","VdJNM4tqZI.HXhug06.7tw_m.png","time to make a place clean and tidy","",[]],["put away","收好","NGR.SkYBjAoYinOeGmPJNA_m.jpg","put something back to the place when it is not being used","",[]],["wrong","錯的","0zuSbS4zurd9m9dSGMBc0A_m.jpg","not correct","",[]],["fault","錯誤","5P6zH3GLbl79zkAJcj6ltg_m.jpg","a mistake","",[]],["step in","介入幫忙","PGOm8lLCa5LRnhpn4Kw8WQ_m.jpg","get involved in a difficult situation because you think you can or should help with it","",[]],["hold up","舉起（過去式 held up）","i/J4PbRIauS43Ur7ygaK2EgA_m.jpg","to take and keep something in your hand or arms","hold up – held up",[]],["country","國家","NpWxoSyRBmfam1SXm2dwhA_m.jpg","an area of land that has its own government, such as Taiwan","",[]],["president","總統","i/byzqSZ152PIwoLgFHdFhFw_m.jpg","the person who is the head or leader of that country","",[]],["February","二月","oyCZhgMg3w82Pg-MgUKnDQ_m.jpg","the second month of the year","",[]],["cabin","小木屋","i/7z0jjTCIg885--G3qxwjUw_m.jpg","a small, simple house made of wood","",[]],["look at","看","TZaI86jbasGwRm27jJxq0A_m.jpg","to see something very carefully","",[]],["fix","修理","i/_qD2JI7Ijx-7oi2txyZq9g_m.jpg","to deal with the problem and solve it","",[]],["matter","物質","GnTaYi9UWn4NffoTO0mv7A_m.jpg","anything that takes up space and has mass","",[]],["space","空間","ZE60DEdIyGVbQ0y36WMlGg_m.jpg","an empty area that is available to be used","",[]],["mass","質量","E.41SKkjfu3ENMUdbQpIaQ_m.jpg","the amount of matter in an object","",[]],["amount","數量","f5tjMV2gkGwGnmkY2ltx2Q_m.png","how much there is, or how much you have","",[]],["object","物體","gSknIN6OrrG8zqhakn.flg_m.jpg","a thing that you can see or touch","",[]],["man-made","人造的","XgjT5eWdYwMfo-oThC3PZw_m.png","artificial rather than natural","",[]],["different","不一樣的","VMF7WNDm8Z2d3qgGmI5zIw_m.jpg","not the same","",[]],["balance","天平","i/l9kniEUOGkdEkuo1yU6zjg_m.jpg","a device used for weighing objects","",[]],["measure","測量","i/n8FhhCeGP0gEEvi-3dpfYg_m.jpg","to discover the size or amount of something","",[]],["describe","描述","6X9SJ4MgrAVZqgcmexDt6g_m.jpg","to say or write about someone or something","",[]],["subway","地下鐵","Ejm7NIauIJzEpjFGZGJFdA_m.jpg","an underground railway","",[]],["taxi","計程車","JAj..LYxMqij.4DVzBlOmA_m.jpg","a car with a driver who you pay to take you somewhere","",[]],["beautiful","美麗的","kIabtXmoLTg3ZO8oOEaZRw_m.jpg","nice-looking","",[]],["dry","乾的","i/_FqExCCeGulx1OoQ3ZfH0A_m.jpg","there is no water in something","",[]],["hard","硬的","eEZfOvSpJULuknO745M94A_m.jpg","not easy to bend, cut, or break","",[]]],"20":[["work hard","努力工作","i/eOfbUb4EgUFMAciidWHjmg_m.jpg","to do a job with a lot of effort","",[]],["cut wood","砍柴","YWKvtOlPIQx5N09M50ojYA_m.jpg","to make wood into smaller pieces","",[]],["firewood","柴火","7VjWF4RX.9nka1lbQmltxg_m.jpg","wood cut into pieces so that it can be burned on a fire","",[]],["pocket","口袋","YwJnhibSNGSDbCN.3zjmTQ_m.jpg","a small bag for carrying things in clothes","",[]],["notice","注意到","TZaI86jbasGwRm27jJxq0A_m.jpg","to see something or someone or become aware of","",[]],["fence rail","柵欄","3Z34kuqAK2vbubXPKDK10w_m.jpg","a barrier between two areas of land, made of wood","",[]],["plow fields","犁田","5WJpJe12OVTM7sNRYWZKgA_m.png","to dig land for planting seeds","",[]],["plant corn","種玉米","4eef8Nwsu6H2AnhvP95cog_m.jpg","to put corn in the soil to grow","",[]],["move to","搬到","fecmwd5NsHr9RkinhpDvoQ_m.jpg","to go to a different place to live or work","",[]],["money","錢","bNatWc7kzZicMDbl5doY0A_m.jpg","coins or notes that are used to buy things","",[]],["pass a test","考試及格","abWS8uOEINmtX9TsNvkWJA_m.png","to be successful in an exam","",[]],["problem","問題","zt9bucrY9hsMk2c9YvcDBA_m.jpg","a situation, person, or thing that needs to be dealt with or solved","",[]],["people","人們","dk9ZLCLksVcoLZyBb5DDog_m.jpg","men, women, and children","",[]],["slavery","奴隸制度","https://farm7.staticflickr.com/6186/6039314825_6d11bfcc04_m.jpg","the system by which people are owned by other people as slaves","",[]],["law office","律師事務所","o9Vb1GSWu7WWOxmnmlQP7g_m.jpg","an office maintained by a lawyer","",[]],["November","十一月","WQSTYZsyh8YSiur-v1PKSA_m.jpg","the eleventh month of the year","",[]],["property","性質、特性","https://farm6.staticflickr.com/5025/5703151566_a44cee2ea6_m.jpg","how matter looks, feels, smells, tastes, or sounds","",[]],["rough","粗糙的","LmcfOb2O1-boV6sPAIDufA_m.jpg","not smooth","",[]],["thick","厚的","q6fdxAOIskIBBtIzwTcfog_m.jpg","having a long distance between two sides","",[]],["thin","薄的","5l2m6p3AtU8eAyfr51n5iQ_m.jpg","having a small distance between two sides","",[]],["mustard","芥末醬","OaGd.TcJ1P19f8YviIhsjA_m.jpg","a thick yellow or brown sauce that tastes spicy","",[]],["skunk","臭鼬","","a small, black and white animal that makes a strong, unpleasant smell","",[]],["bendable","可彎曲的","d5OgXz3ZvBnkDlf355dzmw_m.jpg","that which can be bent","",[]],["smelly","臭的","hDhq6GFCkT8oK1Aw76fnzA_m.jpg","having an unpleasant smell","",[]],["taste","嚐","i/X01RMKRXs_lGzoueCbBUuw_m.jpg","to put food or drink in your mouth to find out what flavor it has","",[]],["heavy","重的（比較級 heavier）","HYvoJHF7-.JjahrfGyY2MQ_m.jpg","weighing a lot, and needing effort to move or lift","heavy – heavier",[]],["solid","固體","i/4OwWS9iJ2CuFRRWVTSuurA_m.jpg","a kind of matter that has its own shape","",[]],["liquid","液體","i/YLNhacQqwBInar-XCSkN5A_m.jpg","a kind of wet matter that takes the shape of the container it is in","",[]],["gas","氣體","i/9MBaAUWgtv_IuBb0zIFUlA_m.jpg","a kind of airy matter that spreads to fill in the space it is in","",[]],["bitter","苦的","f1lhglW5s-GL5Pa-nDD79w_m.jpg","with an unpleasantlysharp taste","",[]],["salty","鹹的","2jaUCtzSQ82F7LcE5LPB-Q_m.jpg","having the taste of salt","",[]],["sour","酸的","KsbyCOsEoY16462Csmaf8g_m.jpg","have a sharp taste caused by acid","",[]],["spicy","辣的","U5AFyALXdu4NKi5Xqcg-5g_m.jpg","strongly flavored with spices","",[]],["sweet","甜的","ZEMYr953NO5PDccli0a8Tg_m.jpg","having a taste like that of sugar or honey","",[]]]};
+const IMG='https://o.quizlet.com/';
+const WEEKS=Object.keys(DATA).map(Number).sort((a,b)=>a-b);
+const KEY='lemon-school-v1',ISLAND='lemon-island-ch1-v1';
+let S={qwk:12,wr:{},wc:{},en:{},pend:0};
+try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s)S=Object.assign(S,s)}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const words=wk=>DATA[wk].map(([en,zh,img,def,show,alt])=>({en,zh,img,def,show,alt,wk}));
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()};
+const say=t=>{try{const sp=speechSynthesis;sp.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=.8;const v=sp.getVoices().find(v=>/en[-_]US/.test(v.lang)&&/Samantha|Google|Aaron|Nicky/.test(v.name))||sp.getVoices().find(v=>/en[-_]US/.test(v.lang));if(v)u.voice=v;sp.speak(u)}catch(e){}};
+const imgTag=w=>w.img?`<img src="${w.img.startsWith('http')?esc(w.img):IMG+esc(w.img)}" alt="" onerror="this.remove()">`:'';
+const norm=s=>s.toLowerCase().replace(/[’‘`]/g,"'").replace(/é/g,'e').replace(/\s+/g,' ').trim();
+const accepts=w=>[w.en,...w.alt].map(norm);
+
+function island(){try{return JSON.parse(localStorage.getItem(ISLAND)||'null')}catch(e){return null}}
+function addEnergy(n){
+  const st=island();
+  if(st&&st.v===1){st.energy=(st.energy||0)+n+(S.pend||0);S.pend=0;try{localStorage.setItem(ISLAND,JSON.stringify(st))}catch(e){S.pend=(S.pend||0)+n}}
+  else S.pend=(S.pend||0)+n;
+  save();
+}
+function go(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));scrollTo(0,0);if(id==='home')home()}
+document.addEventListener('click',e=>{if(e.target.closest('[data-home]')){try{speechSynthesis.cancel()}catch(x){}go('home')}});
+
+const opts=WEEKS.map(w=>`<option value="${w}">Week ${w}</option>`).join('');
+$('qwk').innerHTML=opts;$('cwk').innerHTML=opts;
+$('qwk').onchange=e=>{S.qwk=+e.target.value;save();home()};
+function home(){
+  const st=island();$('en0').textContent='⚡ 魔法能量 '+((st&&st.energy)||0);
+  $('qwk').value=S.qwk;$('qk').textContent=`Week ${S.qwk} 的字，10 個，常錯的先出`;
+  const all=WEEKS.flatMap(words),seen=new Set();
+  const wk=all.filter(w=>!seen.has(w.en)&&seen.add(w.en)&&(S.wr[w.en]||0)>0).sort((a,b)=>(S.wr[b.en]-(S.wc[b.en]||0))-(S.wr[a.en]-(S.wc[a.en]||0))).slice(0,12);
+  $('weak').innerHTML=wk.length?wk.map(w=>`<span>${esc(w.en)} <small>✗${S.wr[w.en]}</small></span>`).join(''):'<span class="muted" style="background:none">還沒有，開始練習吧！</span>';
+}
+
+function cards(wk){
+  $('cwk').value=wk;
+  $('clist').innerHTML=words(wk).map((w,i)=>`<div class="li">${imgTag(w)||'<span></span>'}<div><b>${esc(w.show||w.en)}</b><span class="s">${esc(w.zh)}</span><div class="s muted">${esc(w.def)}</div></div><button data-say="${i}" aria-label="念出來">🔊</button></div>`).join('');
+  $('clist').onclick=e=>{const b=e.target.closest('[data-say]');if(b)say(words(wk)[+b.dataset.say].en)};
+}
+$('mCards').onclick=()=>{go('cards');cards(S.qwk)};
+$('cwk').onchange=e=>cards(+e.target.value);
+
+let G=null;
+const weakScore=w=>(S.wr[w.en]||0)*2-(S.wc[w.en]||0)+Math.random()*1.5;
+function start(kind){
+  const src=kind==='quiz'?words(S.qwk):WEEKS.flatMap(words);const seen=new Set();
+  const pool=src.filter(w=>!seen.has(w.en)&&seen.add(w.en));
+  G={kind,q:pool.sort((a,b)=>weakScore(b)-weakScore(a)).slice(0,10),i:0,res:[]};
+  $('pname').textContent=kind==='quiz'?`小考特訓 Week ${S.qwk}`:'期末總複習';
+  go('play');ask();
+}
+$('mQuiz').onclick=()=>start('quiz');$('mFinal').onclick=()=>start('final');
+$('again').onclick=()=>start(G.kind);
+function prog(){$('prog').innerHTML=G.q.map((_,k)=>`<i class="${['bad','ok','hint'][G.res[k]]||(k===G.i?'now':'')}"></i>`).join('')}
+function ask(){
+  const w=G.q[G.i];G.wrong=0;G.hint=0;G.reveal=false;prog();
+  $('pic').innerHTML=imgTag(w);$('qzh').textContent=w.zh;$('qdef').textContent='';$('pat').textContent='';
+  $('msg').textContent='';$('msg').className='msg';$('inp').value='';$('inp').className='';$('bHint').disabled=false;
+  setTimeout(()=>{say(w.en);$('inp').focus()},250);
+}
+function pattern(w,level){
+  const t=w.en;let letters=[...t].map((c,i)=>/[a-z]/i.test(c)?i:-1).filter(i=>i>=0);
+  let show=new Set([letters[0]]);
+  if(level>1){const n=Math.ceil(letters.length*.5);shuf(letters.slice(1)).slice(0,n-1).forEach(i=>show.add(i))}
+  return [...t].map((c,i)=>c===' '?' ':show.has(i)||!/[a-z]/i.test(c)?c:'_').join(' ');
+}
+$('bSay').onclick=()=>say(G.q[G.i].en);
+$('bDef').onclick=()=>{const w=G.q[G.i];$('qdef').textContent=w.def||'（老師沒有寫解釋）'};
+$('bHint').onclick=()=>{const w=G.q[G.i];if(G.hint>=2)return;G.hint++;$('pat').textContent=pattern(w,G.hint);if(G.hint>=2)$('bHint').disabled=true;say(w.en)};
+$('form').onsubmit=e=>{
+  e.preventDefault();const w=G.q[G.i],v=$('inp').value;
+  if(!v.trim())return;
+  if(/[^\x00-\x7F’‘é]/.test(v)){$('msg').className='msg bad';$('msg').textContent='好像是中文或注音鍵盤，請切換成英文鍵盤喔！';return}
+  const ok=accepts(w).includes(norm(v));
+  if(G.reveal){if(ok){next()}else{$('inp').className='bad';void $('inp').offsetWidth;$('inp').className='bad'}return}
+  if(ok){
+    $('inp').className='ok';$('msg').className='msg ok';
+    $('msg').textContent=(G.wrong||G.hint?'答對了！':'太棒了，一次就拼對！')+(w.show?`（${w.show}）`:'');
+    G.res[G.i]=G.wrong||G.hint?2:1;
+    if(G.wrong||G.hint)S.wr[w.en]=(S.wr[w.en]||0)+1;else S.wc[w.en]=(S.wc[w.en]||0)+1;save();
+    say(w.en);setTimeout(next,1400);
+  }else{
+    G.wrong++;$('inp').className='';void $('inp').offsetWidth;$('inp').className='bad';$('msg').className='msg bad';
+    if(G.wrong>=3){G.reveal=true;G.res[G.i]=0;S.wr[w.en]=(S.wr[w.en]||0)+2;save();
+      $('pat').textContent=w.en;$('msg').textContent='答案在上面，看著它打一次再繼續';$('inp').value='';$('bHint').disabled=true;say(w.en)}
+    else{$('msg').textContent=G.wrong===1?'差一點，再聽一次試試看':'再試一次，也可以按「提示」';say(w.en)}
+  }
+};
+function next(){G.i++;if(G.i>=G.q.length)finish();else ask()}
+function finish(){
+  const clean=G.res.filter(r=>r===1).length,okAll=G.res.filter(r=>r>=1).length,n=G.q.length;
+  const st=clean>=n-2?3:okAll>=Math.ceil(n*.6)?2:1;
+  const day=today();S.en[day]=S.en[day]||0;
+  const first=!S.en[day+G.kind];const want=first?st:1;const gain=Math.max(0,Math.min(want,6-S.en[day]));
+  S.en[day]+=gain;S.en[day+G.kind]=1;for(const k in S.en){if(!k.startsWith(day))delete S.en[k]}
+  if(gain)addEnergy(gain);save();
+  go('done');
+  $('dT').textContent=st===3?'拼字小魔女！':st===2?'很不錯喔！':'練習完成！';
+  $('dSt').innerHTML='★'.repeat(st)+`<span class="off">${'★'.repeat(3-st)}</span>`;
+  $('dMsg').textContent=`一次拼對 ${clean} 個、全部答對 ${okAll} / ${n} 個`+(gain?`，得到 ⚡${gain}！`:'（今天的能量已經拿滿囉）');
+  $('dList').innerHTML=G.q.map((w,k)=>`<div class="li">${imgTag(w)||'<span></span>'}<div><b>${esc(w.en)}</b><span class="s">${esc(w.zh)}</span></div><span style="font-size:24px;font-weight:800;color:${G.res[k]===1?'var(--good)':G.res[k]===2?'#c88a00':'var(--bad)'}">${G.res[k]===1?'✓':G.res[k]===2?'✓提示':'✗'}</span></div>`).join('');
+}
+window.addEventListener('pageshow',e=>{if(e.persisted)location.reload()});
+if(location.hash==='#test')window.__SC={G:()=>G,S:()=>S};
+home();
+}
+</script>
+</body>
+</html>

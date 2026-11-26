@@ -17,7 +17,8 @@ Cambridge A1 Movers 練習遊戲（iPad Safari／主畫面 App）。考試日 20
 | `questions.html` | 給老師的「題目總覽」（全部題目＋答案＋單字表），內容用家長密碼加密，遊戲裡沒有連結。**改了題目一定要重跑** `node tools/build-questions.js <密碼>` 再上傳 |
 | `tools/build-questions.js` / `tq.js` / `t44.js` | 產生題目總覽／總覽頁測試／家長區密碼測試（密碼當參數傳，不寫進 repo） |
 | `notes/Movers單字表_抽查用.csv` | 給家長抽查中文意思的單字表 |
-| `aliang/index.html` | 阿兩的單字火箭（Onyx 班 Quizlet Week 9–20 單字，聽音找圖／翻牌配對／打怪獸／補字母）。圖片直接連 Quizlet，星星存 localStorage `aliang-rocket-v1` |
+| `aliang/index.html` | 阿兩的單字火箭（Onyx 班 Quizlet Week 9–20 單字，聽音找圖／翻牌配對／打怪獸／補字母）。圖片直接連 Quizlet，星星存 localStorage `aliang-rocket-v1`。首頁有「本週小考」週次（家長每週改）＋小考特訓／期末總複習（補字母，常錯先出） |
+| `school/index.html` | 檸檬的學校單字小考練習（Pelican 班 Quizlet Week 9–20，拼整個字）。小考特訓／期末總複習／單字卡；紀錄 `lemon-school-v1`；能量直接加進冒險島 state（同一天最多 ⚡6）。冒險島首頁有入口卡（`schoolBanner`），並在 pageshow 從 bfcache 回來時重新載入避免蓋掉能量 |
 
 ## 遊戲結構
 - 6 章：1 入門、2 讀寫、3 聽力、4 口說、5 模擬考（exam 模式）、6 考前特訓營（15 關新題，`drill:true`，2026-12-15 起自動 exam 模式）。
@@ -39,7 +40,8 @@ Cambridge A1 Movers 練習遊戲（iPad Safari／主畫面 App）。考試日 20
 
 ## 已知決定
 - 朗讀速度暫維持「稍慢」，約 12 月中再評估改回正常。
-- 題目一律自寫，不放出版社教材內容。
+- 題目一律自寫，不放出版社教材內容。（例外：`aliang/`、`school/` 是老師 Quizlet 班級的單字＋家長翻的中文，圖片連 Quizlet 不存進 repo）
+- 學校小考：每天考；考的是前一週教的字（例：教 Week 13 時考 Week 12）；期末考範圍 Week 9–20（Week 17、18 老師沒建卡組）。
 
 ## 待辦（依序）
 3. 口說錄音、家長晚上聽並評分（IndexedDB）

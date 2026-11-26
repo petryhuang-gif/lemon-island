@@ -1369,6 +1369,10 @@ function finishMock(){
    '<div class="row" style="justify-content:center"><button class="btn main" data-act="home">回首頁</button></div></div></section>';
   if(hasTTS)speak("Well done, Lemon!");
 }
+function schoolBanner(){
+  return '<div class="panel mockban"><span class="e" aria-hidden="true">✏️</span><div><b>學校單字小考練習</b><p class="muted" style="margin:0">老師 Quizlet 的 Week 9–20 單字：看圖聽音拼整個字。練完能量直接加進來。</p></div><a class="btn main" href="school/">去練習</a></div>';
+}
+if(window.addEventListener)window.addEventListener("pageshow",function(e){if(e.persisted)location.reload();});
 function mockBanner(){
   if(!mockDue())return "";
   return '<div class="panel mockban"><span class="e" aria-hidden="true">📝</span><div><b>週末小測驗開放了！</b><p class="muted" style="margin:0">聽力、拼字、讀寫一起考，約 10 分鐘。沒有提示，對話只能聽兩次，跟真的考試一樣。寫完得到 ⚡10。</p></div><button class="btn main" data-act="mock-start">開始小測驗</button></div>';
@@ -2010,7 +2014,7 @@ function renderHome(){
    '<div class="stars5" aria-label="找回的守護星">'+[0,1,2,3,4].map(function(i){var lit=i<CHAPTERS.length&&chapDone(i);return starImg(lit,"staricon",STARCOL[i].c);}).join("")+'</div>'+
    (state.bigPrize?'<div class="bigprize">🏆 找回五顆守護星，就能得到：<b>'+esc(state.bigPrize)+'</b></div>':'')+
    '<div class="stats"><span class="chip">⭐ 守護星 '+CHAPTERS.filter(function(c,i){return i<5&&chapDone(i)}).length+' / 5</span><span class="chip">📍 已過關 '+dn+' / '+tot+'</span><span class="chip">⚡ 魔法能量 '+(state.energy||0)+'</span></div></div>'+
-   mockBanner()+todayHTML()+islandHTML()+
+   mockBanner()+todayHTML()+schoolBanner()+islandHTML()+
    (hasTTS?'':'<p class="note">這台裝置不能朗讀英文。聽力任務請家長點「家長看原文」唸給她聽。</p>')+
    '<p class="foot">🌸 Cambridge A1 Movers 練習遊戲 · 原創練習題，不是劍橋官方試題 · 用字已對照劍橋官方 Starters / Movers 單字表<br><button class="parentlink" data-act="parent">家長區</button></p>'+
   '</section>';
