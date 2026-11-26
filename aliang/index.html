@@ -89,6 +89,10 @@ button:focus-visible{outline:4px solid var(--yel);outline-offset:3px}
 .keys{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:10px;max-width:620px;margin:0 auto}
 .key{background:#fff;color:var(--cardInk);font:800 36px "Baloo 2";box-shadow:0 6px 0 #0a1030;min-height:72px}
 .key.used{opacity:.25}.key.bad{animation:shake .4s;background:#ffd6dd}
+.quiz{margin-top:16px;background:linear-gradient(120deg,#3ddc84,#00a37a);border-radius:24px;padding:14px 18px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;box-shadow:0 6px 0 #0a1030}
+.quiz b{font-size:24px}.quiz select{font:800 20px 'Baloo 2';border-radius:12px;border:0;padding:6px 10px;min-height:44px}
+.qbtn{display:flex;gap:10px;flex-wrap:wrap}.qbtn .big{font-size:22px;padding:8px 20px}.big.alt2{background:#4361ee;box-shadow:0 6px 0 #2a3aa8}
+.tag{background:var(--yel);color:#3b2a00;border-radius:999px;padding:0 10px;font-size:14px;font-weight:800}
 .hint{opacity:.8;font-size:16px;text-align:center;margin:8px 0 0}
 .result{text-align:center;padding-top:6vh}
 .result .bigst{font-size:72px;color:var(--yel);letter-spacing:8px}
@@ -113,6 +117,7 @@ button:focus-visible{outline:4px solid var(--yel);outline-offset:3px}
     </div>
     <svg class="rocket" id="rocketHome" viewBox="0 0 120 200" aria-hidden="true"></svg>
   </div>
+  <div class="quiz"><div><b class="zh">本週小考</b> <select id="qwk" aria-label="本週小考週次"></select><div class="zh" style="font-size:15px;opacity:.85">每週由爸媽改週次・期末考範圍 Week 9–20</div></div><div class="qbtn"><button class="big" id="goQuiz">小考特訓</button><button class="big alt2" id="goFinal">期末總複習</button></div></div>
   <div class="top" style="margin-top:14px"><span class="pill" id="totalSt"></span><span class="pill">選一顆星球出發</span></div>
   <div class="planets" id="planets"></div>
 </section>
@@ -135,7 +140,7 @@ button:focus-visible{outline:4px solid var(--yel);outline-offset:3px}
     <h1 id="doneT"></h1>
     <div class="bigst" id="doneSt"></div>
     <p class="zh" id="doneMsg"></p>
-    <div class="row"><button class="big" id="again">再玩一次</button><button class="ghost" data-go="week">換別的遊戲</button></div>
+    <div class="row"><button class="big" id="again">再玩一次</button><button class="ghost" id="back2">換別的遊戲</button></div>
   </div>
 </section>
 
@@ -156,8 +161,8 @@ const MODES=[
  {id:'fill',name:'補字母',desc:'跟小考一樣：把缺的字母補上',c:'#3ddc84',ic:'D'}];
 const MAXW=MODES.length*3;
 const KEY='aliang-rocket-v1';
-let S={st:{}};
-try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&s.st)S=s}catch(e){}
+let S={st:{},bonus:{},wr:{},wc:{},qwk:12};
+try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&s.st)S=Object.assign(S,s)}catch(e){}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -168,7 +173,8 @@ let AC=null;
 const beep=(ok)=>{try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();const t=AC.currentTime;(ok?[523,659,784]:[220,180]).forEach((f,i)=>{const o=AC.createOscillator(),g=AC.createGain();o.type=ok?'triangle':'square';o.frequency.value=f;g.gain.setValueAtTime(.0001,t+i*.09);g.gain.exponentialRampToValueAtTime(.18,t+i*.09+.02);g.gain.exponentialRampToValueAtTime(.0001,t+i*.09+.2);o.connect(g).connect(AC.destination);o.start(t+i*.09);o.stop(t+i*.09+.22)})}catch(e){}};
 const imgTag=w=>w.img?`<img src="${IMG+esc(w.img)}" alt="" onerror="this.outerHTML='<div class=alt>${esc(w.zh).replace(/'/g,'')}</div>'">`:`<div class="alt">${esc(w.zh)}</div>`;
 const starStr=n=>'★'.repeat(n)+`<span class="off">${'★'.repeat(3-n)}</span>`;
-const total=()=>Object.values(S.st).reduce((a,b)=>a+b,0);
+const total=()=>[...Object.values(S.st),...Object.values(S.bonus)].reduce((a,b)=>a+b,0);
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()};
 const LV=[['紙箱火箭',0,'#c8a26b'],['小鐵火箭',20,'#9aa7b8'],['烈焰火箭',45,'#ff7a1a'],['閃電火箭',80,'#4cc9f0'],['黃金火箭',115,'#ffd23f']];
 const level=()=>{const t=total();let i=0;LV.forEach((l,k)=>{if(t>=l[1])i=k});return i};
 function drawRocket(el){const c=LV[level()][2];el.innerHTML=`<g class="flame"><path d="M45 160 Q60 200 75 160Z" fill="#ffd23f"/><path d="M50 160 Q60 185 70 160Z" fill="#ff7a1a"/></g><path d="M60 8 C88 36 92 90 86 160 L34 160 C28 90 32 36 60 8Z" fill="${c}"/><path d="M60 8 C72 22 78 36 80 52 L40 52 C42 36 48 22 60 8Z" fill="#ff4d6d"/><circle cx="60" cy="88" r="17" fill="#17245e" stroke="#fff" stroke-width="6"/><path d="M34 120 L12 160 L36 152Z M86 120 L108 160 L84 152Z" fill="#ff4d6d"/><path d="M40 60 L44 150" stroke="#fff6" stroke-width="5" stroke-linecap="round"/>`}
@@ -181,10 +187,10 @@ function home(){
   const t=total(),li=level(),nx=LV[li+1];
   $('lvl').textContent=`${LV[li][0]}`+(nx?`｜再 ${nx[1]-t} 顆星升級成${nx[0]}`:'｜最高等級！');
   $('fuel').style.width=(nx?((t-LV[li][1])/(nx[1]-LV[li][1])*100):100)+'%';
-  $('totalSt').textContent=`★ ${t} / ${WEEKS.length*MAXW}`;
-  drawRocket($('rocketHome'));
+  $('totalSt').textContent=`★ ${t}`;
+  drawRocket($('rocketHome'));$('qwk').value=S.qwk;
   $('planets').innerHTML=WEEKS.map((w,i)=>{const s=MODES.reduce((a,m)=>a+(S.st[w+m.id]||0),0);
-    return `<button class="planet" data-wk="${w}"><span class="ball" style="background:${PCOL[i%10]}"></span><b>Week ${w}</b><span class="zh" style="font-size:15px">${PNAME[i%10]}</span><span class="st" style="font-size:16px">★ ${s}/${MAXW}</span></button>`}).join('');
+    return `<button class="planet" data-wk="${w}"><span class="ball" style="background:${PCOL[i%10]}"></span><b>Week ${w}</b>${w===S.qwk?'<span class="tag zh">本週小考</span>':''}<span class="zh" style="font-size:15px">${PNAME[i%10]}</span><span class="st" style="font-size:16px">★ ${s}/${MAXW}</span></button>`}).join('');
 }
 $('planets').addEventListener('click',e=>{const b=e.target.closest('[data-wk]');if(!b)return;cur.wk=+b.dataset.wk;go('week')});
 
@@ -198,8 +204,14 @@ $('modes').addEventListener('click',e=>{const b=e.target.closest('[data-m]');if(
 
 let G=null;
 const toast=(w,ms=1300)=>{$('tEn').textContent=w.en;$('tZh').textContent=w.zh;$('toast').classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>$('toast').classList.remove('on'),ms)};
+const fillOK=w=>{const n=w.en.replace(/[^a-z]/gi,'').length;return n>=3&&n<=12};
+const weak=w=>(S.wr[w.en]||0)*2-(S.wc[w.en]||0)+Math.random()*1.5;
+function startSpecial(sp){cur.special=sp;const src=sp==='quiz'?words(S.qwk):WEEKS.flatMap(words);
+  const ws=src.filter(fillOK);const seen=new Set();const pool=ws.filter(w=>!seen.has(w.en)&&seen.add(w.en));
+  G={mode:'fill',ws:pool,miss:0,i:0,res:[],lock:false};G.q=pool.slice().sort((a,b)=>weak(b)-weak(a)).slice(0,10);G.n=G.q.length;
+  $('playName').textContent=sp==='quiz'?`小考特訓 Week ${S.qwk}`:'期末總複習';cur.mode='fill';go('play');fill()}
 function start(mode){
-  cur.mode=mode;const ws=words(cur.wk).filter(w=>w.img);
+  cur.mode=mode;cur.special=null;const ws=words(cur.wk).filter(w=>w.img);
   const m=MODES.find(x=>x.id===mode);$('playName').textContent=m.name;
   G={mode,ws,miss:0,i:0,res:[],lock:false};
   if(mode==='memory'){G.q=shuf(ws).slice(0,6);G.n=G.q.length}
@@ -208,7 +220,7 @@ function start(mode){
   go('play');
   if(mode==='memory')memory();else if(mode==='fill')fill();else question();
 }
-$('quit').onclick=()=>{try{speechSynthesis.cancel()}catch(e){}go('week')};
+$('quit').onclick=()=>{try{speechSynthesis.cancel()}catch(e){}go(cur.special?'home':'week')};
 function prog(){$('prog').innerHTML=Array.from({length:G.n},(_,k)=>`<i class="${G.res[k]===1?'ok':G.res[k]===0?'bad':k===G.i?'now':''}"></i>`).join('')}
 const others=(w,n)=>shuf(G.ws.filter(x=>x.en!==w.en&&x.zh!==w.zh&&x.img!==w.img)).slice(0,n);
 const SPK='<svg viewBox="0 0 24 24" fill="#fff"><path d="M3 9v6h4l5 4V5L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg>';
@@ -243,8 +255,8 @@ function fill(){prog();const w=G.q[G.i];G.tries=0;G.lock=false;G.hole=blanks(w.e
   drawFill();$('again1').onclick=()=>say(w.en);setTimeout(()=>say(w.en),300)}
 function drawFill(){const w=G.q[G.i];$('fw').innerHTML=[...w.en.toLowerCase()].map((c,i)=>c===' '?'<span class="gap"></span>':G.hole.has(i)?(G.need.indexOf(i)<G.got?`<span class="lt fil">${esc(c)}</span>`:`<span class="lt hole${G.need.indexOf(i)===G.got?' cur':''}">_</span>`):`<span class="lt">${esc(c)}</span>`).join('')}
 $('stage').addEventListener('click',e=>{if(!G||G.mode!=='fill'||G.lock)return;const b=e.target.closest('[data-f]');if(!b)return;const w=G.q[G.i],c=G.keys[+b.dataset.f],want=w.en[G.need[G.got]].toLowerCase();
-  if(c===want){G.got++;b.disabled=true;b.classList.add('used');drawFill();if(G.got===G.need.length){G.lock=true;beep(true);say(w.en);toast(w);G.res[G.i]=G.tries?0:1;setTimeout(next,1600)}}
-  else{G.tries++;G.miss++;beep(false);b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad');if(G.tries>=3){G.lock=true;G.res[G.i]=0;G.got=G.need.length;drawFill();say(w.en);toast(w,1800);setTimeout(next,2200)}}});
+  if(c===want){G.got++;b.disabled=true;b.classList.add('used');drawFill();if(G.got===G.need.length){G.lock=true;beep(true);say(w.en);toast(w);G.res[G.i]=G.tries?0:1;if(G.tries)S.wr[w.en]=(S.wr[w.en]||0)+1;else S.wc[w.en]=(S.wc[w.en]||0)+1;save();setTimeout(next,1600)}}
+  else{G.tries++;G.miss++;beep(false);b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad');if(G.tries>=3){G.lock=true;G.res[G.i]=0;S.wr[w.en]=(S.wr[w.en]||0)+2;save();G.got=G.need.length;drawFill();say(w.en);toast(w,1800);setTimeout(next,2200)}}});
 
 function memory(){
   const cards=shuf(G.q.flatMap((w,k)=>[{k,t:'i',w},{k,t:'w',w}]));G.cards=cards;G.open=[];G.found=0;G.res=[];G.i=0;
@@ -264,8 +276,8 @@ $('stage').addEventListener('click',e=>{
 function finish(){
   const lim=G.mode==='memory'?[4,8]:G.mode==='fill'?[2,5]:[1,3];
   const st=G.miss<=lim[0]?3:G.miss<=lim[1]?2:1;
-  const key=cur.wk+G.mode,old=S.st[key]||0,before=level();
-  if(st>old){S.st[key]=st;save()}
+  const before=level(),bag=cur.special?S.bonus:S.st,key=cur.special?today()+cur.special:cur.wk+G.mode,old=bag[key]||0;
+  if(st>old){bag[key]=st;save()}
   go('done');drawRocket($('rocketDone'));
   $('doneT').textContent=st===3?'太厲害了！':st===2?'很棒喔！':'完成任務！';
   $('doneSt').innerHTML=starStr(st);
@@ -273,7 +285,11 @@ function finish(){
   $('doneMsg').textContent=(st>old?`火箭加了 ${st-old} 顆星的油！`:'再挑戰看看，拿更多星星！')+(up?` 火箭升級成「${LV[level()][0]}」了！`:'');
   const r=$('rocketDone');r.classList.remove('fly');if(st===3){void r.offsetWidth;setTimeout(()=>r.classList.add('fly'),700)}
 }
-$('again').onclick=()=>start(cur.mode);
+$('again').onclick=()=>cur.special?startSpecial(cur.special):start(cur.mode);
+$('back2').onclick=()=>go(cur.special?'home':'week');
+$('goQuiz').onclick=()=>startSpecial('quiz');$('goFinal').onclick=()=>startSpecial('final');
+$('qwk').innerHTML=WEEKS.map(w=>`<option value="${w}">Week ${w}</option>`).join('');
+$('qwk').onchange=e=>{S.qwk=+e.target.value;save();home()};
 home();
 }
 </script>
